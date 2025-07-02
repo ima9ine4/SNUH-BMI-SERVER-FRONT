@@ -3,8 +3,9 @@ import { FaPlay, FaStop, FaTrashAlt, FaFileAlt, FaChevronDown, FaExternalLinkAlt
 import { getContainerList } from '../api/containerApi';
 
 const COMPANY_NAME = 'SNUH BMI SERVER';
-const USER_ID = 'hyejinlim_020904';
-const USER_NAME = '임혜진';
+const USER_ID = 'test_1234';
+const USER_PW = 'test_1234'
+const USER_NAME = 'testuser';
 
 const PAGE_SIZE = 10;
 

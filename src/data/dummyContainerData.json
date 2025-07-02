@@ -1,33 +1,33 @@
 {
     "data": [
       {
-        "사용자 ID": "hyejinlim",
+        "사용자 ID": "testuser",
         "생성 서버": "bmi-gpu148",
         "CPU크기(core)": "32",
         "RAM크기(GB)": 128,
-        "컨테이너이름": "hyejinlim_test",
+        "컨테이너이름": "test_container_1",
         "이미지이름": "bmi_vscode_cuda_250110",
         "접속주소": "https://www.google.com",
         "GPU슬롯": "all",
         "status": "false"
       },
       {
-        "사용자 ID": "hyejinlim",
+        "사용자 ID": "testuser",
         "생성 서버": "bmi-gpu148",
         "CPU크기(core)": "32",
         "RAM크기(GB)": 128,
-        "컨테이너이름": "hyejinlim_test",
+        "컨테이너이름": "test_container_2",
         "이미지이름": "bmi_vscode_cuda_250110",
         "접속주소": "https://www.google.com",
         "GPU슬롯": "all",
         "status": "true"
       },
       {
-        "사용자 ID": "hyejinlim",
+        "사용자 ID": "testuser",
         "생성 서버": "bmi-gpu148",
         "CPU크기(core)": "32",
         "RAM크기(GB)": 128,
-        "컨테이너이름": "hyejinlim_test",
+        "컨테이너이름": "test_container_3",
         "이미지이름": "bmi_vscode_cuda_250110",
         "접속주소": "https://www.google.com",
         "GPU슬롯": "all",
