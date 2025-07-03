@@ -4,10 +4,7 @@ import { FiPlay, FiPause, FiFileText, FiTrash2 } from 'react-icons/fi';
 import {getContainerList, startContainer, stopContainer, fetchLogs, deleteContainer, createContainer} from '../api/containerApi';
 import NewContainerModal from '../components/NewContainerModal'
 
-const COMPANY_NAME = 'SNUH BMI SERVER';
-const USER_ID = 'test_1234';
-const USER_PW = 'test_1234'
-const USER_NAME = 'testuser';
+const COMPANY_NAME = 'SNUH BMI LAB SERVER';
 
 const PAGE_SIZE = 10;
 
@@ -24,7 +21,7 @@ function mapApiContainer(apiObj) {
   };
 }
 
-const MainPage = () => {
+const MainPage = ({ user, onLogout }) => {
     const [containerData, setContainerData] = useState([]);
     const [loading, setLoading] = useState(true);
     const [page, setPage] = useState(1);
@@ -34,7 +31,7 @@ const MainPage = () => {
     const pagedData = containerData.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
     const handleStart = (name) => {
-        startContainer({userId: USER_ID, userPw: USER_PW, serverName: name})
+        startContainer({userId: user.userId, userPw: user.userPw, serverName: name})
             .then(() => {
                 setContainerData((prev) =>
                     prev.map((item) =>
@@ -46,7 +43,7 @@ const MainPage = () => {
     }
 
     const handleStop = (name) => {
-        stopContainer({userId: USER_ID, userPw: USER_PW, serverName: name})
+        stopContainer({userId: user.userId, userPw: user.userPw, serverName: name})
             .then(() => {
                 setContainerData((prev) =>
                     prev.map((item) =>
@@ -58,7 +55,7 @@ const MainPage = () => {
     }
 
     const handleLogs = (name) => {
-        fetchLogs({userId: USER_ID, userPw: USER_PW, serverName: name})
+        fetchLogs({userId: user.userId, userPw: user.userPw, serverName: name})
             .then(res => {
                 alert(`로그 ${res.data.logs}`);
             })
@@ -71,7 +68,7 @@ const MainPage = () => {
                 const backup = [...prev];
                 const updated = prev.filter(item => item.name !== name);
 
-                deleteContainer({userId: USER_ID, userPw: USER_PW, serverName: name})
+                deleteContainer({userId: user.userId, userPw: user.userPw, serverName: name})
                 .then(() => {
                     console.log("삭제 완료");
                 })
@@ -99,6 +96,7 @@ const MainPage = () => {
     };
     
     useEffect(() =>{
+        console.log(user);
         getContainerList()
             .then((res) => {
                 const mapped = res.data.map(mapApiContainer);
@@ -115,17 +113,17 @@ const MainPage = () => {
         <div className="min-h-screen bg-gray-50 font-sans text-gray-900">
             {/* 상단바 */}
             <nav className="w-full bg-white border-b border-gray-200 shadow-sm">
-                <div className="max-w-7xl mx-auto flex justify-between items-center px-4 sm:px-8 h-14">
+                <div className="max-w-7xl mx-auto flex justify-between items-center px-3 h-14">
                 <span className="text-base sm:text-lg font-bold tracking-wide text-blue-700">{COMPANY_NAME}</span>
                 <div className="relative">
                     <button className="flex items-center gap-2 px-2 py-1 rounded-full hover:bg-gray-100 transition" onClick={() => setProfileOpen(v => !v)}>
-                    <span className="text-sm text-gray-800 font-medium">{USER_NAME}</span>
+                    <span className="text-sm text-gray-800 font-medium">{user.userId}</span>
                     <FaChevronDown className="text-gray-400 text-xs" />
                     </button>
                     {profileOpen && (
                     <div className="absolute right-0 mt-2 w-40 bg-white border border-gray-200 rounded-lg shadow-lg py-2 z-20">
-                        <div className="px-4 py-2 text-blue-700 text-xs font-semibold">{USER_ID}</div>
-                        <button className="w-full text-left px-4 py-2 text-red-500 hover:bg-red-50 text-xs font-medium">로그아웃</button>
+                        <div className="px-4 py-2 text-blue-700 text-xs font-semibold">{user.userId}</div>
+                        <button className="w-full text-left px-4 py-2 text-red-500 hover:bg-red-50 text-xs font-medium" onClick={onLogout}>로그아웃</button>
                     </div>
                     )}
                 </div>
@@ -134,7 +132,7 @@ const MainPage = () => {
 
             {/* 컨테이너 목록 헤더 */}
             <div className="max-w-7xl mx-auto flex justify-between items-center px-3 mt-8 mb-4">
-                <span className="text-2xl font-medium text-gray-700">컨테이너 목록</span>
+                <span className="text-3xl font-medium text-gray-900 mb-2">컨테이너 목록</span>
                 <button className="bg-blue-600 hover:bg-blue-700 text-white rounded-lg px-4 py-2 text-xs sm:text-sm font-semibold shadow-sm transition" onClick={() => setShowModal(true)}>
                 + 새 컨테이너 생성
                 </button>
