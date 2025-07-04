@@ -148,17 +148,17 @@ const MainPage = ({ user, onLogout }) => {
             <div className="max-w-7xl mx-auto bg-white rounded-xl shadow-md border border-gray-200 mb-10 overflow-x-auto">
                 <table className="w-full min-w-[900px] text-xs sm:text-sm table-fixed">
                 <colgroup>
-                    <col className="w-48" /> {/* 이름 */}
-                    <col className="w-40" /> {/* 이미지 */}
-                    <col className="w-16" /> {/* CPU */}
-                    <col className="w-16" /> {/* RAM */}
-                    <col className="w-16" /> {/* GPU */}
-                    <col className="w-28" /> {/* 서버 */}
-                    <col className="w-20" /> {/* 상태 */}
-                    <col className="w-12" /> {/* 동작 */}
-                    <col className="w-16" /> {/* 접속 */}
-                    <col className="w-12" /> {/* 로그 */}
-                    <col className="w-12" /> {/* 삭제 */}
+                    <col className="w-48" />
+                    <col className="w-40" />
+                    <col className="w-16" />
+                    <col className="w-16" />
+                    <col className="w-16" />
+                    <col className="w-28" />
+                    <col className="w-20" />
+                    <col className="w-12" />
+                    <col className="w-16" />
+                    <col className="w-12" />
+                    <col className="w-12" />
                 </colgroup>
                 <thead>
                     <tr className="bg-gray-50 text-gray-700 border-b border-gray-200">
