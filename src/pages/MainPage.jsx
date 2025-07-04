@@ -3,10 +3,13 @@ import { FaChevronDown, FaExternalLinkAlt } from 'react-icons/fa';
 import { FiPlay, FiPause, FiFileText, FiTrash2 } from 'react-icons/fi';
 import {getContainerList, startContainer, stopContainer, fetchLogs, deleteContainer, createContainer} from '../api/containerApi';
 import NewContainerModal from '../components/NewContainerModal'
+import { BsDownload, BsFillFileArrowDownFill } from 'react-icons/bs';
+import { LuRefreshCw } from "react-icons/lu";
+
 
 const COMPANY_NAME = 'SNUH BMI LAB SERVER';
 
-const PAGE_SIZE = 10;
+const PAGE_SIZE = 4;
 
 function mapApiContainer(apiObj) {
   return {
@@ -229,6 +232,66 @@ const MainPage = ({ user, onLogout }) => {
                         <button className="p-1 rounded hover:bg-gray-100 text-gray-500 text-sm" title="삭제"
                             onClick={() => handleDelete(c.name)}>
                             <FiTrash2 />
+                        </button>
+                        </td>
+                    </tr>
+                    ))}
+                </tbody>
+                </table>
+                {/* 페이지네이션 */}
+                <div className="flex justify-center items-center gap-4 py-4">
+                <button onClick={() => setPage(page - 1)} disabled={page === 1} className="px-3 py-1 rounded bg-gray-100 text-gray-500 disabled:opacity-50 disabled:cursor-not-allowed">&lt;</button>
+                <span className="text-gray-700 text-xs sm:text-sm">{page} / {totalPages}</span>
+                <button onClick={() => setPage(page + 1)} disabled={page === totalPages} className="px-3 py-1 rounded bg-gray-100 text-gray-500 disabled:opacity-50 disabled:cursor-not-allowed">&gt;</button>
+                </div>
+            </div>
+
+            {/* 다운로드 목록 헤더 */}
+            <div className="max-w-7xl mx-auto flex justify-between items-center px-3 mt-8 mb-4">
+                <div className="flex gap-2">
+                    <span className="text-3xl font-medium text-gray-900 mb-2">파일 다운로드</span>
+                    <button
+                        className="p-2 rounded-full hover:bg-gray-100 text-gray-400 mb-2"
+                        title="파일 다운로드 목록 새로고침"
+                        onClick={() => {/* 파일 다운로드 목록 새로고침 함수 자리 */}}
+                    >
+                        <LuRefreshCw size={18} />
+                    </button>
+                </div>
+            </div>
+
+            {/* 다운로드 목록 테이블 */}
+            <div className="max-w-7xl mx-auto bg-white rounded-xl shadow-md border border-gray-200 mb-10 overflow-x-auto">
+                <table className="w-full min-w-[900px] text-xs sm:text-sm table-fixed">
+                <colgroup>
+                    <col className="w-16" />
+                    <col className="w-48" />
+                    <col className="w-16" />
+                    <col className="w-16" />
+                    <col className="w-8" />
+                </colgroup>
+                <thead>
+                    <tr className="bg-gray-50 text-gray-700 border-b border-gray-200">
+                    <th className="py-3 px-2 font-semibold text-xs tracking-wide">신청 날짜</th>
+                    <th className="py-3 px-2 font-semibold text-xs tracking-wide">파일명</th>
+                    <th className="py-3 px-2 font-semibold text-xs tracking-wide">허가 상태</th>
+                    <th className="py-3 px-2 font-semibold text-xs tracking-wide">허가 날짜</th>
+                    <th className="py-3 px-2 font-semibold text-xs tracking-wide">다운로드</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {pagedData.map((c) => (
+                    <tr key={c.id} className="group border-b border-gray-100 last:border-0 hover:bg-blue-50/60 transition">
+                        <td className="py-3 px-2 align-middle text-center text-gray-700 truncate">2025-07-04</td>
+                        <td className="py-3 px-2 align-middle text-center font-semibold text-gray-700 truncate">file name</td>
+                        <td className="py-3 px-2 align-middle text-center">
+                        <span className={`inline-block px-2.5 py-1 rounded-full text-xs font-semibold border bg-green-50 text-green-700 border-green-200`}>허가 완료</span>
+                        </td>
+                        <td className="py-3 px-2 align-middle text-center text-gray-700">2025-07-04</td>
+                        <td className="py-3 px-2 align-middle text-center">
+                        <button className="p-1 rounded hover:bg-gray-100 text-gray-500 text-sm" title="로그보기"
+                            onClick={() => handleLogs(c.name)}>
+                            <BsDownload />
                         </button>
                         </td>
                     </tr>
