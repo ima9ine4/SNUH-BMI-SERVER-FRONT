@@ -11,7 +11,7 @@ const COMPANY_NAME = 'SNUH BMI LAB SERVER';
 
 const PAGE_SIZE = 4;
 
-function mapApiContainer(apiObj) {
+function mapApiContainer(apiObj) { // api response의 원본 json 배열을 가공하여 저장
   return {
     status: apiObj["status"] === "true" ? "Running" : "Stopped",
     name: apiObj["컨테이너이름"],
@@ -61,7 +61,7 @@ const MainPage = ({ user, onLogout }) => {
             .catch(err => console.error("Start error", err));
     }
 
-    const handleStop = (name) => {
+    const handleStop = (name) => { // 컨테이너 중지 API 호출
         stopContainer({userId: user.userId, userPw: user.userPw, serverName: name})
             .then(() => {
                 setContainerData((prev) =>
@@ -73,7 +73,7 @@ const MainPage = ({ user, onLogout }) => {
             .catch(err => console.error("Stop error", err));
     }
 
-    const handleLogs = (name) => {
+    const handleLogs = (name) => { // 컨테이너 로그 조회 API 호출
         fetchLogs({userId: user.userId, userPw: user.userPw, serverName: name})
             .then(res => {
                 alert(`로그 ${res.data.logs}`);
@@ -81,7 +81,7 @@ const MainPage = ({ user, onLogout }) => {
             .catch(err => console.error("Logs error", err));
     }
 
-    const handleDelete = (name) => {
+    const handleDelete = (name) => { // 컨테이너 삭제 API 호출
         if (window.confirm(`${name} 컨테이너를 삭제하시겠습니까?`)){
             setContainerData((prev) => {
                 const backup = [...prev];
@@ -102,7 +102,7 @@ const MainPage = ({ user, onLogout }) => {
         }
     };
 
-    const handleCreateContainer = (formData) => {
+    const handleCreateContainer = (formData) => { // 컨테이너 생성 API 호출
         createContainer(formData)
             .then((res) => {
                 alert("생성 완료");
