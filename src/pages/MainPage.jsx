@@ -5,11 +5,13 @@ import {getContainerList, startContainer, stopContainer, fetchLogs, deleteContai
 import NewContainerModal from '../components/NewContainerModal'
 import { BsDownload, BsFillFileArrowDownFill } from 'react-icons/bs';
 import { LuRefreshCw } from "react-icons/lu";
+import { getDownloadList } from '../api/downloadApi';
 
 
 const COMPANY_NAME = 'SNUH BMI LAB SERVER';
 
 const PAGE_SIZE = 4;
+const DOWNLOAD_PAGE_SIZE = 4;
 
 function mapApiContainer(apiObj) { // api response의 원본 json 배열을 가공하여 저장
   return {
@@ -33,6 +35,11 @@ const MainPage = ({ user, onLogout }) => {
     const [availableVolumes, setAvailableVolumes] = useState([]);
     const totalPages = Math.ceil(containerData.length / PAGE_SIZE);
     const pagedData = containerData.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+
+    const [downloadData, setDownloadData] = useState([]);
+    const [downloadPage, setDownloadPage] = useState(1);
+    const downloadTotalPages = Math.ceil(downloadData.length / DOWNLOAD_PAGE_SIZE);
+    const downloadPagedData = downloadData.slice((downloadPage - 1) * DOWNLOAD_PAGE_SIZE, downloadPage * DOWNLOAD_PAGE_SIZE);
 
     // 컨테이너 목록 새로고침 함수
     const refreshContainerList = () => {
@@ -114,6 +121,13 @@ const MainPage = ({ user, onLogout }) => {
             });
     };
     
+    // 다운로드 데이터 불러오기
+    const fetchDownloadData = () => {
+      getDownloadList().then(res => {
+        setDownloadData(res.data);
+      });
+    };
+
     useEffect(() =>{
         refreshContainerList();
         getDockerVolume({userId: user.userId, userPw: user.userPw}).then((volumeNames) => {
@@ -122,6 +136,7 @@ const MainPage = ({ user, onLogout }) => {
         .catch((err) => {
             console.log("도커 볼륨 로딩 실패", err);
         })
+        fetchDownloadData();
     }, [user.id, user.pw]);
     console.log(availableVolumes);
 
@@ -276,7 +291,7 @@ const MainPage = ({ user, onLogout }) => {
                     <button
                         className="p-2 rounded-full hover:bg-gray-100 text-gray-400 mb-2"
                         title="파일 다운로드 목록 새로고침"
-                        onClick={() => {/* 파일 다운로드 목록 새로고침 함수 자리 */}}
+                        onClick={fetchDownloadData}
                     >
                         <LuRefreshCw size={18} />
                     </button>
@@ -303,19 +318,32 @@ const MainPage = ({ user, onLogout }) => {
                     </tr>
                 </thead>
                 <tbody>
-                    {pagedData.map((c) => (
+                    {downloadPagedData.map((c) => (
                     <tr key={c.id} className="group border-b border-gray-100 last:border-0 hover:bg-blue-50/60 transition">
-                        <td className="py-3 px-2 align-middle text-center text-gray-700 truncate">2025-07-04</td>
-                        <td className="py-3 px-2 align-middle text-center font-semibold text-gray-700 truncate">file name</td>
+                        <td className="py-3 px-2 align-middle text-center text-gray-700 truncate">{c.requestDate}</td>
+                        <td className="py-3 px-2 align-middle text-center font-semibold text-gray-700 truncate">{c.fileName}</td>
                         <td className="py-3 px-2 align-middle text-center">
-                        <span className={`inline-block px-2.5 py-1 rounded-full text-xs font-semibold border bg-green-50 text-green-700 border-green-200`}>허가 완료</span>
+                            <span
+                                className={`inline-block px-2.5 py-1 rounded-full text-xs font-semibold border
+                                    ${c.status === '허가 완료' ? 'bg-green-50 text-green-700 border-green-200' :
+                                        c.status === '대기 중' ? 'bg-yellow-50 text-yellow-700 border-yellow-200' :
+                                        c.status === '반려' ? 'bg-red-50 text-red-600 border-red-200' :
+                                        ''}
+                                `}
+                            >
+                                {c.status}
+                            </span>
                         </td>
-                        <td className="py-3 px-2 align-middle text-center text-gray-700">2025-07-04</td>
+                        <td className="py-3 px-2 align-middle text-center text-gray-700">{c.approveDate || '-'}</td>
                         <td className="py-3 px-2 align-middle text-center">
-                        <button className="p-1 rounded hover:bg-gray-100 text-gray-500 text-sm" title="로그보기"
-                            onClick={() => handleLogs(c.name)}>
-                            <BsDownload />
-                        </button>
+                            {c.status === '허가 완료' ? (
+                              <button className="p-1 rounded hover:bg-gray-100 text-gray-500 text-sm" title="다운로드"
+                                  onClick={() => alert(`${c.fileName} 다운로드`)}>
+                                  <BsDownload />
+                              </button>
+                            ) : (
+                              <span className="text-gray-400">-</span>
+                            )}
                         </td>
                     </tr>
                     ))}
@@ -323,9 +351,9 @@ const MainPage = ({ user, onLogout }) => {
                 </table>
                 {/* 페이지네이션 */}
                 <div className="flex justify-center items-center gap-4 py-4">
-                <button onClick={() => setPage(page - 1)} disabled={page === 1} className="px-3 py-1 rounded bg-gray-100 text-gray-500 disabled:opacity-50 disabled:cursor-not-allowed">&lt;</button>
-                <span className="text-gray-700 text-xs sm:text-sm">{page} / {totalPages}</span>
-                <button onClick={() => setPage(page + 1)} disabled={page === totalPages} className="px-3 py-1 rounded bg-gray-100 text-gray-500 disabled:opacity-50 disabled:cursor-not-allowed">&gt;</button>
+                    <button onClick={() => setDownloadPage(downloadPage - 1)} disabled={downloadPage === 1} className="px-3 py-1 rounded bg-gray-100 text-gray-500 disabled:opacity-50 disabled:cursor-not-allowed">&lt;</button>
+                    <span className="text-gray-700 text-xs sm:text-sm">{downloadPage} / {downloadTotalPages}</span>
+                    <button onClick={() => setDownloadPage(downloadPage + 1)} disabled={downloadPage === downloadTotalPages} className="px-3 py-1 rounded bg-gray-100 text-gray-500 disabled:opacity-50 disabled:cursor-not-allowed">&gt;</button>
                 </div>
             </div>
         </div>
