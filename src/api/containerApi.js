@@ -51,3 +51,10 @@ export const deleteContainer = ({userId, userPw, serverName}) => {
     //     data: { userId, userPw, serverName}
     // })
 }
+
+export const createContainer = (params) => {
+    return;
+    // return axios.post(`${BASE_URL}/api/`, null, {
+    //   params: params
+    // });
+  };  
