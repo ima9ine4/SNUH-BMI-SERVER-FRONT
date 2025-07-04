@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { FaChevronDown, FaExternalLinkAlt } from 'react-icons/fa';
-import { FiPlay, FiPause, FiFileText, FiTrash2 } from 'react-icons/fi';
+import { FiFileText, FiTrash2 } from 'react-icons/fi';
 import {getContainerList, startContainer, stopContainer, fetchLogs, deleteContainer, createContainer, getDockerVolume} from '../api/containerApi';
 import NewContainerModal from '../components/NewContainerModal'
 import { BsDownload, BsFillFileArrowDownFill } from 'react-icons/bs';
 import { LuRefreshCw } from "react-icons/lu";
 import { getDownloadList } from '../api/downloadApi';
+import { MdOutlineReplay } from "react-icons/md";
+import { FaRegCircleStop } from "react-icons/fa6";
 
 
 const COMPANY_NAME = 'SNUH BMI LAB SERVER';
@@ -236,7 +238,7 @@ const MainPage = ({ user, onLogout }) => {
                                 title="중지"
                                 onClick={() => handleStop(c.name)}
                             >
-                                <FiPause />
+                                <FaRegCircleStop />
                             </button>
                             ) : (
                             <button
@@ -244,7 +246,7 @@ const MainPage = ({ user, onLogout }) => {
                                 title="재시작"
                                 onClick={() => handleStart(c.name)}
                             >
-                                <FiPlay />
+                                <MdOutlineReplay />
                             </button>
                         )}
                         </td>
