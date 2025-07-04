@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { FaChevronDown, FaExternalLinkAlt } from 'react-icons/fa';
 import { FiPlay, FiPause, FiFileText, FiTrash2 } from 'react-icons/fi';
-import {getContainerList, startContainer, stopContainer, fetchLogs, deleteContainer, createContainer} from '../api/containerApi';
+import {getContainerList, startContainer, stopContainer, fetchLogs, deleteContainer, createContainer, getDockerVolume} from '../api/containerApi';
 import NewContainerModal from '../components/NewContainerModal'
 import { BsDownload, BsFillFileArrowDownFill } from 'react-icons/bs';
 import { LuRefreshCw } from "react-icons/lu";
@@ -30,6 +30,7 @@ const MainPage = ({ user, onLogout }) => {
     const [page, setPage] = useState(1);
     const [profileOpen, setProfileOpen] = useState(false);
     const [showModal, setShowModal] = useState(false);
+    const [availableVolumes, setAvailableVolumes] = useState([]);
     const totalPages = Math.ceil(containerData.length / PAGE_SIZE);
     const pagedData = containerData.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
@@ -115,6 +116,14 @@ const MainPage = ({ user, onLogout }) => {
     
     useEffect(() =>{
         refreshContainerList();
+        getDockerVolume({userId: user.userId, userPw: user.userPw}).then((volumeNames) => {
+            setAvailableVolumes(volumeNames);
+        })
+        .catch((err) => {
+            console.log("도커 볼륨 로딩 실패", err);
+        })
+    }, [user.id, user.pw]);
+    console.log(availableVolumes);
 
     return (
         <div className="min-h-screen bg-gray-50 font-sans text-gray-900">
@@ -156,6 +165,7 @@ const MainPage = ({ user, onLogout }) => {
                     <NewContainerModal
                         onClose={() => setShowModal(false)}
                         onSubmit={handleCreateContainer}
+                        volumeOptions={availableVolumes}
                     />
                 )}
             </div>
