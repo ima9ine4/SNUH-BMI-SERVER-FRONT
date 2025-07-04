@@ -33,7 +33,22 @@ const MainPage = ({ user, onLogout }) => {
     const totalPages = Math.ceil(containerData.length / PAGE_SIZE);
     const pagedData = containerData.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
-    const handleStart = (name) => {
+    // 컨테이너 목록 새로고침 함수
+    const refreshContainerList = () => {
+        setLoading(true);
+        getContainerList()
+            .then((res) => {
+                const mapped = res.data.map(mapApiContainer);
+                setContainerData(mapped);
+                setLoading(false);
+            })
+            .catch((err) => {
+                console.error("데이터 로딩 실패", err);
+                setLoading(false);
+            });
+    };
+
+    const handleStart = (name) => { // 컨테이너 시작 API 호출
         startContainer({userId: user.userId, userPw: user.userPw, serverName: name})
             .then(() => {
                 setContainerData((prev) =>
@@ -99,18 +114,7 @@ const MainPage = ({ user, onLogout }) => {
     };
     
     useEffect(() =>{
-        console.log(user);
-        getContainerList()
-            .then((res) => {
-                const mapped = res.data.map(mapApiContainer);
-                setContainerData(mapped);
-                setLoading(false);
-            })
-            .catch((err) => {
-                console.error("데이터 로딩 실패", err);
-                setLoading(false);
-            });
-    }, []);
+        refreshContainerList();
 
     return (
         <div className="min-h-screen bg-gray-50 font-sans text-gray-900">
@@ -135,9 +139,18 @@ const MainPage = ({ user, onLogout }) => {
 
             {/* 컨테이너 목록 헤더 */}
             <div className="max-w-7xl mx-auto flex justify-between items-center px-3 mt-8 mb-4">
-                <span className="text-3xl font-medium text-gray-900 mb-2">컨테이너 목록</span>
+                <div className="flex gap-2">
+                    <span className="text-3xl font-medium text-gray-900 mb-2">컨테이너 목록</span>
+                    <button
+                        className="p-2 rounded-full hover:bg-gray-100 text-gray-400 mb-2"
+                        title="컨테이너 목록 새로고침"
+                        onClick={refreshContainerList}
+                    >
+                        <LuRefreshCw size={18} />
+                    </button>
+                </div>
                 <button className="bg-blue-600 hover:bg-blue-700 text-white rounded-lg px-4 py-2 text-xs sm:text-sm font-semibold shadow-sm transition" onClick={() => setShowModal(true)}>
-                + 새 컨테이너 생성
+                    + 새 컨테이너 생성
                 </button>
                 {showModal && (
                     <NewContainerModal
