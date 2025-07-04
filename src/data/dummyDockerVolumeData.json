@@ -1,0 +1,112 @@
+{
+    "DockerVolume1": {
+        "abs_path" : "/nas2/bmi",
+        "readwrite": 1,
+        "users": [
+            "testuser",
+            "testuser2",
+            "testuser3",
+            "testuser4"
+        ]
+    },
+    "DockerVolume2": {
+        "abs_path" : "/nas2/bmi",
+        "readwrite": 1,
+        "users": [
+            "testuser",
+            "testuser2",
+            "testuser3",
+            "testuser4"
+        ]
+    },
+    "DockerVolume3": {
+        "abs_path" : "/nas2/bmi",
+        "readwrite": 1,
+        "users": [
+            "testuser",
+            "testuser2",
+            "testuser3",
+            "testuser4"
+        ]
+    },
+    "DockerVolume4": {
+        "abs_path" : "/nas2/bmi",
+        "readwrite": 1,
+        "users": [
+            "testuser",
+            "testuser2",
+            "testuser3",
+            "testuser4"
+        ]
+    },
+    "DockerVolume5": {
+        "abs_path" : "/nas2/bmi",
+        "readwrite": 1,
+        "users": [
+            "testuser",
+            "testuser2",
+            "testuser3",
+            "testuser4"
+        ]
+    },
+    "DockerVolume6": {
+        "abs_path" : "/nas2/bmi",
+        "readwrite": 1,
+        "users": [
+            "testuser",
+            "testuser2",
+            "testuser3",
+            "testuser4"
+        ]
+    },
+    "DockerVolume7": {
+        "abs_path" : "/nas2/bmi",
+        "readwrite": 1,
+        "users": [
+            "testuser",
+            "testuser2",
+            "testuser3",
+            "testuser4"
+        ]
+    },
+    "DockerVolume8": {
+        "abs_path" : "/nas2/bmi",
+        "readwrite": 1,
+        "users": [
+            "testuser",
+            "testuser2",
+            "testuser3",
+            "testuser4"
+        ]
+    },
+    "DockerVolume9": {
+        "abs_path" : "/nas2/bmi",
+        "readwrite": 1,
+        "users": [
+            "testuser",
+            "testuser2",
+            "testuser3",
+            "testuser4"
+        ]
+    },
+    "DockerVolume10": {
+        "abs_path" : "/nas2/bmi",
+        "readwrite": 1,
+        "users": [
+            "testuser",
+            "testuser2",
+            "testuser3",
+            "testuser4"
+        ]
+    },
+    "DockerVolume11": {
+        "abs_path" : "/nas2/bmi",
+        "readwrite": 1,
+        "users": [
+            "testuser",
+            "testuser2",
+            "testuser3",
+            "testuser4"
+        ]
+    }
+}

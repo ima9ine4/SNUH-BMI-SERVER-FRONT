@@ -1,0 +1,23 @@
+[
+  {
+    "id": 1,
+    "requestDate": "2025-07-04",
+    "fileName": "file name 1",
+    "status": "허가 완료",
+    "approveDate": "2025-07-04"
+  },
+  {
+    "id": 2,
+    "requestDate": "2025-07-05",
+    "fileName": "file name 2",
+    "status": "대기 중",
+    "approveDate": ""
+  },
+  {
+    "id": 3,
+    "requestDate": "2025-07-06",
+    "fileName": "file name 3",
+    "status": "반려",
+    "approveDate": ""
+  }
+]

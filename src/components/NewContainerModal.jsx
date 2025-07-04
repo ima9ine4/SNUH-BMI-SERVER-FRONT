@@ -1,18 +1,24 @@
 import React, { useState } from "react";
 import { FaInfoCircle } from "react-icons/fa";
+import Select from "react-select"
 
-const NewContainerModal = ({ onClose, onSubmit }) => {
+const NewContainerModal = ({ onClose, onSubmit, volumeOptions }) => {
     const [form, setForm] = useState({
         hostname: "",
         serverName: "",
         cpu: "",
         shareMemory: "8",
         gpu: "",
-        volumes: "",
+        volumes: [],
         imageType: "",
     });
 
     const [error, setError] = useState("");
+    
+    const volumeOptionsFormatted = volumeOptions.map((v) => ({
+        value: v,
+        label: v
+    }))
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -76,6 +82,11 @@ const NewContainerModal = ({ onClose, onSubmit }) => {
         
         // 모든 조건 통과
         setError(""); // 에러 초기화
+
+        const payload = {
+            ...form,
+            volumes: form.volumes.join(","), // 쉼표 구분 문자열로 받는 경우
+        };
         onSubmit(form);
     };
   
@@ -164,17 +175,21 @@ const NewContainerModal = ({ onClose, onSubmit }) => {
                     />
 
                     <label className="block text-sm font-medium text-gray-700">
-                        공유 폴더 (쉼표로 구분)
-                        <Info message="컨테이너에 사용할 공유 폴더(도커 볼륨)을 ,로 구분하여 입력하세요. 연결하지 않은 폴더는 컨테이너 생성 이후 연결할 수 없습니다." />
+                        공유 폴더
+                        <Info message="컨테이너에 사용할 공유 폴더(도커 볼륨)을 선택하세요. 연결하지 않은 폴더는 컨테이너 생성 이후 연결할 수 없습니다." />
                     </label>
-                    <input
+                    <Select
+                        isMulti
                         name="volumes"
-                        value={form.volumes}
-                        onChange={handleChange}
-                        className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        placeholder="예: /data1,/data2"
+                        value={form.volumes.map((v) => ({ value: v, label: v }))}
+                        options={volumeOptionsFormatted}
+                        onChange={(selectedOptions) => {
+                            const selected = selectedOptions.map((opt) => opt.value);
+                            setForm((prev) => ({...prev, volumes: selected}));
+                        }}
+                        className="basic-multi-select"
+                        classNamePrefix="select"
                     />
-
                     <label className="block text-sm font-medium text-gray-700">
                         이미지 타입 <span className="text-red-500">*</span>
                         <Info message="컨테이너에 사용할 이미지 종류를 선택하세요. CPU만 사용할 경우 CPU 이미지 사용을 권장합니다. Jupyter lab은 모든 브라우저에서 사용 가능하며, Vscode Server는 Firefox 브라우저에서 사용 가능합니다." />

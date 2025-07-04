@@ -1,5 +1,6 @@
 // import axios from 'axios';
-import dummyData from '../data/dummyContainerData.json';
+import containerDummyData from '../data/dummyContainerData.json';
+import dockerVolumeDummyData from '../data/dummyDockerVolumeData.json'
 
 // const BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
@@ -8,8 +9,8 @@ export const getContainerList = () => {
     return new Promise((resolve) => {
         setTimeout(() => {
             resolve({
-                data: dummyData.data,
-                time: dummyData.time
+                data: containerDummyData.data,
+                time: containerDummyData.time
             })
         });
     }, 500);
@@ -57,4 +58,15 @@ export const createContainer = (params) => {
     // return axios.post(`${BASE_URL}/api/`, null, {
     //   params: params
     // });
-  };  
+}
+
+export const getDockerVolume = ({userId, userPw}) => {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            const volumeNames = Object.keys(dockerVolumeDummyData);
+            resolve(volumeNames);
+        }
+        );
+    }, 500);
+    // return;
+}

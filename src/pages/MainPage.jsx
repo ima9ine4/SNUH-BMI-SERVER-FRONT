@@ -1,14 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import { FaChevronDown, FaExternalLinkAlt } from 'react-icons/fa';
-import { FiPlay, FiPause, FiFileText, FiTrash2 } from 'react-icons/fi';
-import {getContainerList, startContainer, stopContainer, fetchLogs, deleteContainer, createContainer} from '../api/containerApi';
+import { FiFileText, FiTrash2 } from 'react-icons/fi';
+import {getContainerList, startContainer, stopContainer, fetchLogs, deleteContainer, createContainer, getDockerVolume} from '../api/containerApi';
 import NewContainerModal from '../components/NewContainerModal'
+import { BsDownload, BsFillFileArrowDownFill } from 'react-icons/bs';
+import { LuRefreshCw } from "react-icons/lu";
+import { getDownloadList } from '../api/downloadApi';
+import { MdOutlineReplay } from "react-icons/md";
+import { FaRegCircleStop } from "react-icons/fa6";
+
 
 const COMPANY_NAME = 'SNUH BMI LAB SERVER';
 
-const PAGE_SIZE = 10;
+const PAGE_SIZE = 4;
+const DOWNLOAD_PAGE_SIZE = 4;
 
-function mapApiContainer(apiObj) {
+function mapApiContainer(apiObj) { // api response의 원본 json 배열을 가공하여 저장
   return {
     status: apiObj["status"] === "true" ? "Running" : "Stopped",
     name: apiObj["컨테이너이름"],
@@ -27,10 +34,31 @@ const MainPage = ({ user, onLogout }) => {
     const [page, setPage] = useState(1);
     const [profileOpen, setProfileOpen] = useState(false);
     const [showModal, setShowModal] = useState(false);
+    const [availableVolumes, setAvailableVolumes] = useState([]);
     const totalPages = Math.ceil(containerData.length / PAGE_SIZE);
     const pagedData = containerData.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
-    const handleStart = (name) => {
+    const [downloadData, setDownloadData] = useState([]);
+    const [downloadPage, setDownloadPage] = useState(1);
+    const downloadTotalPages = Math.ceil(downloadData.length / DOWNLOAD_PAGE_SIZE);
+    const downloadPagedData = downloadData.slice((downloadPage - 1) * DOWNLOAD_PAGE_SIZE, downloadPage * DOWNLOAD_PAGE_SIZE);
+
+    // 컨테이너 목록 새로고침 함수
+    const refreshContainerList = () => {
+        setLoading(true);
+        getContainerList()
+            .then((res) => {
+                const mapped = res.data.map(mapApiContainer);
+                setContainerData(mapped);
+                setLoading(false);
+            })
+            .catch((err) => {
+                console.error("데이터 로딩 실패", err);
+                setLoading(false);
+            });
+    };
+
+    const handleStart = (name) => { // 컨테이너 시작 API 호출
         startContainer({userId: user.userId, userPw: user.userPw, serverName: name})
             .then(() => {
                 setContainerData((prev) =>
@@ -42,7 +70,7 @@ const MainPage = ({ user, onLogout }) => {
             .catch(err => console.error("Start error", err));
     }
 
-    const handleStop = (name) => {
+    const handleStop = (name) => { // 컨테이너 중지 API 호출
         stopContainer({userId: user.userId, userPw: user.userPw, serverName: name})
             .then(() => {
                 setContainerData((prev) =>
@@ -54,7 +82,7 @@ const MainPage = ({ user, onLogout }) => {
             .catch(err => console.error("Stop error", err));
     }
 
-    const handleLogs = (name) => {
+    const handleLogs = (name) => { // 컨테이너 로그 조회 API 호출
         fetchLogs({userId: user.userId, userPw: user.userPw, serverName: name})
             .then(res => {
                 alert(`로그 ${res.data.logs}`);
@@ -62,7 +90,7 @@ const MainPage = ({ user, onLogout }) => {
             .catch(err => console.error("Logs error", err));
     }
 
-    const handleDelete = (name) => {
+    const handleDelete = (name) => { // 컨테이너 삭제 API 호출
         if (window.confirm(`${name} 컨테이너를 삭제하시겠습니까?`)){
             setContainerData((prev) => {
                 const backup = [...prev];
@@ -83,7 +111,7 @@ const MainPage = ({ user, onLogout }) => {
         }
     };
 
-    const handleCreateContainer = (formData) => {
+    const handleCreateContainer = (formData) => { // 컨테이너 생성 API 호출
         createContainer(formData)
             .then((res) => {
                 alert("생성 완료");
@@ -95,19 +123,24 @@ const MainPage = ({ user, onLogout }) => {
             });
     };
     
+    // 다운로드 데이터 불러오기
+    const fetchDownloadData = () => {
+      getDownloadList().then(res => {
+        setDownloadData(res.data);
+      });
+    };
+
     useEffect(() =>{
-        console.log(user);
-        getContainerList()
-            .then((res) => {
-                const mapped = res.data.map(mapApiContainer);
-                setContainerData(mapped);
-                setLoading(false);
-            })
-            .catch((err) => {
-                console.error("데이터 로딩 실패", err);
-                setLoading(false);
-            });
-    }, []);
+        refreshContainerList();
+        getDockerVolume({userId: user.userId, userPw: user.userPw}).then((volumeNames) => {
+            setAvailableVolumes(volumeNames);
+        })
+        .catch((err) => {
+            console.log("도커 볼륨 로딩 실패", err);
+        })
+        fetchDownloadData();
+    }, [user.id, user.pw]);
+    console.log(availableVolumes);
 
     return (
         <div className="min-h-screen bg-gray-50 font-sans text-gray-900">
@@ -132,14 +165,24 @@ const MainPage = ({ user, onLogout }) => {
 
             {/* 컨테이너 목록 헤더 */}
             <div className="max-w-7xl mx-auto flex justify-between items-center px-3 mt-8 mb-4">
-                <span className="text-3xl font-medium text-gray-900 mb-2">컨테이너 목록</span>
+                <div className="flex gap-2">
+                    <span className="text-3xl font-medium text-gray-900 mb-2">컨테이너 목록</span>
+                    <button
+                        className="p-2 rounded-full hover:bg-gray-100 text-gray-400 mb-2"
+                        title="컨테이너 목록 새로고침"
+                        onClick={refreshContainerList}
+                    >
+                        <LuRefreshCw size={18} />
+                    </button>
+                </div>
                 <button className="bg-blue-600 hover:bg-blue-700 text-white rounded-lg px-4 py-2 text-xs sm:text-sm font-semibold shadow-sm transition" onClick={() => setShowModal(true)}>
-                + 새 컨테이너 생성
+                    + 새 컨테이너 생성
                 </button>
                 {showModal && (
                     <NewContainerModal
                         onClose={() => setShowModal(false)}
                         onSubmit={handleCreateContainer}
+                        volumeOptions={availableVolumes}
                     />
                 )}
             </div>
@@ -195,7 +238,7 @@ const MainPage = ({ user, onLogout }) => {
                                 title="중지"
                                 onClick={() => handleStop(c.name)}
                             >
-                                <FiPause />
+                                <FaRegCircleStop />
                             </button>
                             ) : (
                             <button
@@ -203,7 +246,7 @@ const MainPage = ({ user, onLogout }) => {
                                 title="재시작"
                                 onClick={() => handleStart(c.name)}
                             >
-                                <FiPlay />
+                                <MdOutlineReplay />
                             </button>
                         )}
                         </td>
@@ -240,6 +283,79 @@ const MainPage = ({ user, onLogout }) => {
                 <button onClick={() => setPage(page - 1)} disabled={page === 1} className="px-3 py-1 rounded bg-gray-100 text-gray-500 disabled:opacity-50 disabled:cursor-not-allowed">&lt;</button>
                 <span className="text-gray-700 text-xs sm:text-sm">{page} / {totalPages}</span>
                 <button onClick={() => setPage(page + 1)} disabled={page === totalPages} className="px-3 py-1 rounded bg-gray-100 text-gray-500 disabled:opacity-50 disabled:cursor-not-allowed">&gt;</button>
+                </div>
+            </div>
+
+            {/* 다운로드 목록 헤더 */}
+            <div className="max-w-7xl mx-auto flex justify-between items-center px-3 mt-8 mb-4">
+                <div className="flex gap-2">
+                    <span className="text-3xl font-medium text-gray-900 mb-2">파일 다운로드</span>
+                    <button
+                        className="p-2 rounded-full hover:bg-gray-100 text-gray-400 mb-2"
+                        title="파일 다운로드 목록 새로고침"
+                        onClick={fetchDownloadData}
+                    >
+                        <LuRefreshCw size={18} />
+                    </button>
+                </div>
+            </div>
+
+            {/* 다운로드 목록 테이블 */}
+            <div className="max-w-7xl mx-auto bg-white rounded-xl shadow-md border border-gray-200 mb-10 overflow-x-auto">
+                <table className="w-full min-w-[900px] text-xs sm:text-sm table-fixed">
+                <colgroup>
+                    <col className="w-16" />
+                    <col className="w-48" />
+                    <col className="w-16" />
+                    <col className="w-16" />
+                    <col className="w-8" />
+                </colgroup>
+                <thead>
+                    <tr className="bg-gray-50 text-gray-700 border-b border-gray-200">
+                    <th className="py-3 px-2 font-semibold text-xs tracking-wide">신청 날짜</th>
+                    <th className="py-3 px-2 font-semibold text-xs tracking-wide">파일명</th>
+                    <th className="py-3 px-2 font-semibold text-xs tracking-wide">허가 상태</th>
+                    <th className="py-3 px-2 font-semibold text-xs tracking-wide">허가 날짜</th>
+                    <th className="py-3 px-2 font-semibold text-xs tracking-wide">다운로드</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {downloadPagedData.map((c) => (
+                    <tr key={c.id} className="group border-b border-gray-100 last:border-0 hover:bg-blue-50/60 transition">
+                        <td className="py-3 px-2 align-middle text-center text-gray-700 truncate">{c.requestDate}</td>
+                        <td className="py-3 px-2 align-middle text-center font-semibold text-gray-700 truncate">{c.fileName}</td>
+                        <td className="py-3 px-2 align-middle text-center">
+                            <span
+                                className={`inline-block px-2.5 py-1 rounded-full text-xs font-semibold border
+                                    ${c.status === '허가 완료' ? 'bg-green-50 text-green-700 border-green-200' :
+                                        c.status === '대기 중' ? 'bg-yellow-50 text-yellow-700 border-yellow-200' :
+                                        c.status === '반려' ? 'bg-red-50 text-red-600 border-red-200' :
+                                        ''}
+                                `}
+                            >
+                                {c.status}
+                            </span>
+                        </td>
+                        <td className="py-3 px-2 align-middle text-center text-gray-700">{c.approveDate || '-'}</td>
+                        <td className="py-3 px-2 align-middle text-center">
+                            {c.status === '허가 완료' ? (
+                              <button className="p-1 rounded hover:bg-gray-100 text-gray-500 text-sm" title="다운로드"
+                                  onClick={() => alert(`${c.fileName} 다운로드`)}>
+                                  <BsDownload />
+                              </button>
+                            ) : (
+                              <span className="text-gray-400">-</span>
+                            )}
+                        </td>
+                    </tr>
+                    ))}
+                </tbody>
+                </table>
+                {/* 페이지네이션 */}
+                <div className="flex justify-center items-center gap-4 py-4">
+                    <button onClick={() => setDownloadPage(downloadPage - 1)} disabled={downloadPage === 1} className="px-3 py-1 rounded bg-gray-100 text-gray-500 disabled:opacity-50 disabled:cursor-not-allowed">&lt;</button>
+                    <span className="text-gray-700 text-xs sm:text-sm">{downloadPage} / {downloadTotalPages}</span>
+                    <button onClick={() => setDownloadPage(downloadPage + 1)} disabled={downloadPage === downloadTotalPages} className="px-3 py-1 rounded bg-gray-100 text-gray-500 disabled:opacity-50 disabled:cursor-not-allowed">&gt;</button>
                 </div>
             </div>
         </div>
