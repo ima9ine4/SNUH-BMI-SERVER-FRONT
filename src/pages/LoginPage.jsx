@@ -19,8 +19,19 @@ const LoginPage = ({ onLogin }) => {
 
         try {
             const response = await loginUser({ userId, userPw });
-            // 로그인 성공 시 onLogin 호출
-            onLogin(response.data);
+            const responseData = response.data;
+            
+            if(responseData.status === "로그인 성공"){
+                onLogin(
+                    {
+                        userId: responseData.userId,
+                        userPw: responseData.userPw
+                    }
+                );
+                
+            }else{
+                setError("로그인에 실패했습니다.")
+            }
         } catch (err) {
             setError(err.message || "로그인에 실패했습니다.");
         } finally {
