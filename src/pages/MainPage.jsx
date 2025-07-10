@@ -16,16 +16,16 @@ const PAGE_SIZE = 4;
 const DOWNLOAD_PAGE_SIZE = 4;
 
 function mapApiContainer(apiObj) { // api response의 원본 json 배열을 가공하여 저장
-  return {
-    status: apiObj["status"] === "true" ? "Running" : "Stopped",
-    name: apiObj["컨테이너이름"],
-    image: apiObj["이미지이름"],
-    cpu: apiObj["CPU크기(core)"] + " core",
-    ram: apiObj["RAM크기(GB)"] + "GB",
-    gpu: apiObj["GPU슬롯"],
-    server: apiObj["생성 서버"],
-    address: apiObj["접속주소"],
-  };
+    return {
+        status: apiObj["status"] === "true" ? "Running" : "Stopped",
+        name: apiObj["컨테이너이름"],
+        image: apiObj["이미지이름"],
+        cpu: apiObj["CPU크기(core)"] + " core",
+        ram: apiObj["RAM크기(GB)"] + "GB",
+        gpu: apiObj["GPU슬롯"],
+        server: apiObj["생성 서버"],
+        address: apiObj["접속주소"],
+    };
 }
 
 const MainPage = ({ user, onLogout }) => {
