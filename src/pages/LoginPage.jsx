@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { ReactComponent as BMILogo } from "./../snuh-bmi-lab-logo.svg";
 
 const LoginPage = ({ onLogin }) => {
     const [ userId, setUserId ] = useState("");
@@ -20,10 +21,8 @@ const LoginPage = ({ onLogin }) => {
             <div className="bg-white p-10 rounded-2xl shadow-xl w-full max-w-md border border-gray-100">
                 {/* 로고 및 브랜딩 */}
                 <div className="text-center mb-8">
-                    <div className="w-16 h-16 bg-gradient-to-br from-blue-600 to-indigo-700 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
-                        <span className="text-white text-2xl font-bold">BMI</span>
-                    </div>
-                    <h1 className="text-2xl font-bold text-gray-900 mb-2">SNUH BMI LAB</h1>
+                    <BMILogo className="mx-auto mb-4" />
+                    {/* <h1 className="text-2xl font-bold text-gray-900 mb-2">SNUH BMI LAB</h1> */}
                     <p className="text-gray-600 text-sm">컨테이너 관리 시스템</p>
                 </div>
 
