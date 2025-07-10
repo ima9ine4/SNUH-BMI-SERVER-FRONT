@@ -1,19 +1,31 @@
 import React, { useState } from "react";
 import { ReactComponent as BMILogo } from "./../snuh-bmi-lab-logo.svg";
+import { loginUser } from "../api/loginApi";
 
 const LoginPage = ({ onLogin }) => {
     const [ userId, setUserId ] = useState("");
     const [ userPw, setuserPw ] = useState("");
     const [ error, setError ] = useState("");
+    const [ loading, setLoading ] = useState(false);
     
-    const handleLogin = () => {
+    const handleLogin = async () => {
         if (userId === "" || userPw === ""){
             setError("아이디와 비밀번호를 모두 입력해주세요.");
             return;
         }
 
-        // 로그인 성공 시 onLogin 호출
-        onLogin({ userId, userPw });
+        setLoading(true);
+        setError("");
+
+        try {
+            const response = await loginUser({ userId, userPw });
+            // 로그인 성공 시 onLogin 호출
+            onLogin(response.data);
+        } catch (err) {
+            setError(err.message || "로그인에 실패했습니다.");
+        } finally {
+            setLoading(false);
+        }
     }
 
     return (
@@ -39,7 +51,8 @@ const LoginPage = ({ onLogin }) => {
                                 placeholder="아이디를 입력하세요"
                                 value={userId}
                                 onChange={(e) => setUserId(e.target.value)}
-                                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-gray-900 placeholder-gray-400"
+                                disabled={loading}
+                                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-gray-900 placeholder-gray-400 disabled:bg-gray-50"
                             />
                         </div>
                         
@@ -49,11 +62,12 @@ const LoginPage = ({ onLogin }) => {
                             </label>
                             <input
                                 id="userPw"
-                                type="userPw"
+                                type="password"
                                 placeholder="비밀번호를 입력하세요"
                                 value={userPw}
                                 onChange={(e) => setuserPw(e.target.value)}
-                                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-gray-900 placeholder-gray-400"
+                                disabled={loading}
+                                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-gray-900 placeholder-gray-400 disabled:bg-gray-50"
                             />
                         </div>
                     </div>
@@ -66,7 +80,8 @@ const LoginPage = ({ onLogin }) => {
 
                     <button
                         type="submit"
-                        className="w-full mt-6 bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-3 px-4 rounded-xl font-semibold hover:from-blue-700 hover:to-indigo-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 shadow-lg hover:shadow-xl"
+                        disabled={loading}
+                        className="w-full mt-6 bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-3 px-4 rounded-xl font-semibold hover:from-blue-700 hover:to-indigo-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                         로그인
                     </button>
