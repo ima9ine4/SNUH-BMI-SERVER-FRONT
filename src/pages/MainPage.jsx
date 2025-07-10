@@ -3,7 +3,7 @@ import { FaChevronDown, FaExternalLinkAlt } from 'react-icons/fa';
 import { FiFileText, FiTrash2 } from 'react-icons/fi';
 import {getContainerList, startContainer, stopContainer, fetchLogs, deleteContainer, createContainer, getDockerVolume} from '../api/containerApi';
 import NewContainerModal from '../components/NewContainerModal'
-import { BsDownload, BsFillFileArrowDownFill } from 'react-icons/bs';
+import { BsDownload } from 'react-icons/bs';
 import { LuRefreshCw } from "react-icons/lu";
 import { getDownloadList } from '../api/downloadApi';
 import { MdOutlineReplay } from "react-icons/md";
