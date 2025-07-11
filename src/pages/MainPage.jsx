@@ -125,9 +125,9 @@ const MainPage = ({ user, onLogout }) => {
     
     // 다운로드 데이터 불러오기
     const fetchDownloadData = () => {
-      getDownloadList().then(res => {
-        setDownloadData(res.data);
-      });
+        getDownloadList().then(res => {
+            setDownloadData(res.data);
+        });
     };
 
     useEffect(() =>{
