@@ -96,7 +96,7 @@ const MainPage = ({ user, onLogout }) => {
                 const backup = [...prev];
                 const updated = prev.filter(item => item.name !== name);
 
-                deleteContainer({userId: user.userId, userPw: user.userPw, serverName: name})
+                deleteContainer({userId: user.userId, userPW: user.userPW, serverName: name})
                 .then(() => {
                     console.log("삭제 완료");
                 })

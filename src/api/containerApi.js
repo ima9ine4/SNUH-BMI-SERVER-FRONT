@@ -51,12 +51,16 @@ export const stopContainer = ({userId, userPW, serverName}) => {
 //     // })
 // }
 
-export const deleteContainer = ({userId, userPw, serverName}) => {
+export const deleteContainer = ({userId, userPW, serverName}) => {
     console.log(`Delete Container: ${serverName}`);
-    return Promise.resolve({success : true});
-    //     return axios.delete(`${BASE_URL}/api/`, {
-    //     data: { userId, userPw, serverName}
-    // })
+    return axios.delete(`${BASE_URL}/container_manager`, {
+        params: { serverName },
+        headers: {
+            'accept': 'application/json',
+            'userID': userId,
+            'userPW': userPW
+        }
+    })
 }
 
 export const createContainer = (params) => {
