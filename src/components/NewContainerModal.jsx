@@ -6,24 +6,41 @@ const NewContainerModal = ({ onClose, onSubmit, volumeOptions }) => {
     const [form, setForm] = useState({
         hostname: "",
         serverName: "",
-        cpu: "",
-        shareMemory: "8",
-        gpu: "",
-        volumes: [],
+        cpu: null,
+        memory: null,
+        share_memory: 8,
+        gpuType: "",
+        addvolumes: [],
         imageType: "",
     });
 
     const [error, setError] = useState("");
-    
-    const volumeOptionsFormatted = volumeOptions.map((v) => ({
-        value: v,
-        label: v
-    }))
+
+    const volumeData = volumeOptions && typeof volumeOptions === 'object' && !Array.isArray(volumeOptions)
+        ? volumeOptions
+        : {};
+
+    const volumeOptionsFormatted = Object.keys(volumeData).map((key) => {
+        const volumeName = volumeData[key];
+        const readwriteText = volumeName.readwrite === 1 ? "readwrite" : "readonly";
+        // const usersText = volumeName.users;
+        return {
+            value: key,
+            // label: `${key} (${readwriteText}/ ${usersText})`
+            label: `${key} (${readwriteText})`
+        }
+    });
 
     const handleChange = (e) => {
         const { name, value } = e.target;
-        if ((name === "cpu" || name === "shareMemory") && parseInt(value) < 0) return;
-        setForm((prev) => ({ ...prev, [name]: value }));
+        if ((name === "cpu" || name === "share_memory" || name === "memory")) {
+            setForm(prev => ({
+                ...prev,
+                [name]: Number(value)
+            }));
+        }else{
+            setForm((prev) => ({ ...prev, [name]: value }));
+        };
     };
 
     const handleSubmit = () => {
@@ -42,35 +59,45 @@ const NewContainerModal = ({ onClose, onSubmit, volumeOptions }) => {
             return;
         }
 
-        if (form.cpu.trim() === "") {
+        if (form.cpu === null) {
             setError("CPU 값을 입력해주세요.");
             return;
         }
-        const cpuVal = parseInt(form.cpu);
-        if (isNaN(cpuVal) || cpuVal < 0) {
+        if (form.memory === null) {
+            setError("memory 값을 입력해주세요.");
+            return;
+        }
+        if (isNaN(form.cpu) || form.cpu < 0) {
             setError("CPU 값은 0 이상의 숫자여야 합니다.");
             return;
         }
-        if (cpuVal > 120) {
+        if (form.cpu > 120) {
             setError("CPU는 최대 120 core까지 가능합니다.");
             return;
         }
+        if (isNaN(form.memory) || form.memory < 0) {
+            setError("메모리 값은 0 이상의 숫자여야 합니다.");
+            return;
+        }
+        if (form.memory > 512) {
+            setError("메모리 최대 512 GB까지 가능합니다.");
+            return;
+        }
         
-        if (form.shareMemory.trim() === "") {
+        if (form.share_memory === null) {
             setError("공유 메모리 값을 입력해주세요.");
             return;
         }
-        const shmVal = parseInt(form.shareMemory);
-        if (isNaN(shmVal) || shmVal < 0) {
+        if (isNaN(form.share_memory) || form.share_memory < 0) {
             setError("공유 메모리는 0 이상의 숫자여야 합니다.");
             return;
         }
-        if (shmVal > 512) {
+        if (form.share_memory > 512) {
             setError("공유 메모리는 최대 512GB까지 가능합니다.");
             return;
         }
         
-        if (form.gpu.trim() === "") {
+        if (form.gpuType.trim() === "") {
             setError("GPU 슬롯을 입력해주세요.");
             return;
         }
@@ -85,9 +112,12 @@ const NewContainerModal = ({ onClose, onSubmit, volumeOptions }) => {
 
         const payload = {
             ...form,
-            volumes: form.volumes.join(","), // 쉼표 구분 문자열로 받는 경우
+            addvolumes: form.addvolumes.join(","),
+            cpu: Number(form.cpu),
+            share_memory: Number(form.share_memory),
+            memory: Number(form.memory)
         };
-        onSubmit(form);
+        onSubmit(payload);
     };
   
 
@@ -150,13 +180,27 @@ const NewContainerModal = ({ onClose, onSubmit, volumeOptions }) => {
                     />
 
                     <label className="block text-sm font-medium text-gray-700">
+                        메모리 (GB) <span className="text-red-500">*</span>
+                        <Info message="컨테이너 메모리 크기(GB)를 입력하세요. 최댓값은 입니다." />
+                    </label>
+                    <input
+                        type="number"
+                        name="memory"
+                        value={form.memory}
+                        onChange={handleChange}
+                        className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        placeholder="예: 128"
+                        min="0"
+                    />
+
+                    <label className="block text-sm font-medium text-gray-700">
                         공유 메모리 <span className="text-red-500">*</span>
                         <Info message="컨테이너 공유메모리(shm-size) 크기(GB)를 입력하세요. 기본값은 8, 최댓값은 512입니다." />
                     </label>
                     <input
                         type="number"
-                        name="shareMemory"
-                        value={form.shareMemory}
+                        name="share_memory"
+                        value={form.share_memory}
                         onChange={handleChange}
                         className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
                         min="0"
@@ -167,8 +211,8 @@ const NewContainerModal = ({ onClose, onSubmit, volumeOptions }) => {
                         <Info message={`사용할 GPU 슬롯을 입력하세요. \n 예: 모두 사용할 경우: all / 4번, 5번 슬롯을 사용할 경우: 4,5`} />
                     </label>
                     <input
-                        name="gpu"
-                        value={form.gpu}
+                        name="gpuType"
+                        value={form.gpuType}
                         onChange={handleChange}
                         className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
                         placeholder="예: 4,5"
@@ -181,11 +225,11 @@ const NewContainerModal = ({ onClose, onSubmit, volumeOptions }) => {
                     <Select
                         isMulti
                         name="volumes"
-                        value={form.volumes.map((v) => ({ value: v, label: v }))}
+                        value={form.addvolumes.map((v) => ({ value: v, label: v }))}
                         options={volumeOptionsFormatted}
                         onChange={(selectedOptions) => {
                             const selected = selectedOptions.map((opt) => opt.value);
-                            setForm((prev) => ({...prev, volumes: selected}));
+                            setForm((prev) => ({...prev, addvolumes: selected}));
                         }}
                         className="basic-multi-select"
                         classNamePrefix="select"
@@ -201,9 +245,10 @@ const NewContainerModal = ({ onClose, onSubmit, volumeOptions }) => {
                         className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
                     >
                         <option value="">선택하세요</option>
-                        <option value="bmi_vscode_cuda">bmi_vscode_cuda</option>
-                        <option value="bmi_vscode_cpu">bmi_vscode_cpu</option>
-                        <option value="bmi_jupyter">bmi_jupyter</option>
+                        <option value="vscode_cuda_250110">vscode_cuda_250110</option>
+                        <option value="vscode_cpu_250110">vscode_cpu_250110</option>
+                        <option value="jupyter_cuda_250110">jupyter_cuda_250110</option>
+                        <option value="jupyter_cpu_250110">jupyter_cpu_250110</option>
                     </select>
                 </div>
 

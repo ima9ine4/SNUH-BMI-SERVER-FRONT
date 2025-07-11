@@ -112,7 +112,7 @@ const MainPage = ({ user, onLogout }) => {
     };
 
     const handleCreateContainer = (formData) => { // 컨테이너 생성 API 호출
-        createContainer(formData)
+        createContainer({userId: user.userId, userPW: user.userPW, formData})
             .then((res) => {
                 alert("생성 완료");
                 setContainerData((prev) => [...prev, mapApiContainer(res.data)]);

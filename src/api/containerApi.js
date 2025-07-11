@@ -63,11 +63,16 @@ export const deleteContainer = ({userId, userPW, serverName}) => {
     })
 }
 
-export const createContainer = (params) => {
-    return;
-    // return axios.post(`${BASE_URL}/api/`, null, {
-    //   params: params
-    // });
+export const createContainer = ({userId, userPW, formData}) => {
+    const requestBody = {};
+    return axios.post(`${BASE_URL}/container_manager`, requestBody, {
+        params: formData,
+        headers: {
+            'accept': 'application/json',
+            'userID': userId,
+            'userPW': userPW
+        }
+    });
 }
 
 export const getDockerVolume = ({userId, userPW}) => {
