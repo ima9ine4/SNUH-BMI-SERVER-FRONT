@@ -70,13 +70,17 @@ export const createContainer = (params) => {
     // });
 }
 
-export const getDockerVolume = ({userId, userPw}) => {
-    return new Promise((resolve) => {
-        setTimeout(() => {
-            const volumeNames = Object.keys(dockerVolumeDummyData);
-            resolve(volumeNames);
+export const getDockerVolume = ({userId, userPW}) => {
+    console.log('getDockerVolume 실행');
+    return axios.get(`${BASE_URL}/container_manager`, {
+        headers: {
+            'accept': 'application/json',
+            'userID': userId,
+            'userPW': userPW
         }
-        );
-    }, 500);
-    // return;
+    })
+    .catch(error => {
+        console.log(error.response.data.errors);
+        }
+    )
 }

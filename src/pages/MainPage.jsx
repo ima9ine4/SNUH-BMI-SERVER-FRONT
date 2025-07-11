@@ -132,15 +132,14 @@ const MainPage = ({ user, onLogout }) => {
 
     useEffect(() =>{
         refreshContainerList();
-        getDockerVolume({userId: user.userId, userPw: user.userPw}).then((volumeNames) => {
-            setAvailableVolumes(volumeNames);
+        getDockerVolume({userId: user.userId, userPW: user.userPW}).then((response) => {
+            setAvailableVolumes(response.data);
         })
         .catch((err) => {
             console.log("도커 볼륨 로딩 실패", err);
         })
         fetchDownloadData();
-    }, [user.id, user.pw]);
-    console.log(availableVolumes);
+    }, [user.userId, user.userPW]);
 
     return (
         <div className="min-h-screen bg-gray-50 font-sans text-gray-900">
