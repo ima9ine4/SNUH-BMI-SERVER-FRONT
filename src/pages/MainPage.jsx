@@ -82,13 +82,13 @@ const MainPage = ({ user, onLogout }) => {
             .catch(err => console.error("Stop error", err));
     }
 
-    const handleLogs = (name) => { // 컨테이너 로그 조회 API 호출
-        fetchLogs({userId: user.userId, userPw: user.userPw, serverName: name})
-            .then(res => {
-                alert(`로그 ${res.data.logs}`);
-            })
-            .catch(err => console.error("Logs error", err));
-    }
+    // const handleLogs = (name) => { // 컨테이너 로그 조회 API 호출
+    //     fetchLogs({userId: user.userId, userPW: user.userPW, serverName: name})
+    //         .then(res => {
+    //             alert(`로그 ${res.data.logs}`);
+    //         })
+    //         .catch(err => console.error("Logs error", err));
+    // }
 
     const handleDelete = (name) => { // 컨테이너 삭제 API 호출
         if (window.confirm(`${name} 컨테이너를 삭제하시겠습니까?`)){
@@ -200,7 +200,7 @@ const MainPage = ({ user, onLogout }) => {
                     <col className="w-20" />
                     <col className="w-12" />
                     <col className="w-16" />
-                    <col className="w-12" />
+                    {/* <col className="w-12" /> */}
                     <col className="w-12" />
                 </colgroup>
                 <thead>
@@ -214,7 +214,7 @@ const MainPage = ({ user, onLogout }) => {
                     <th className="py-3 px-2 font-semibold text-xs tracking-wide">상태</th>
                     <th className="py-3 px-2 font-semibold text-xs tracking-wide">동작</th>
                     <th className="py-3 px-2 font-semibold text-xs tracking-wide">접속</th>
-                    <th className="py-3 px-2 font-semibold text-xs tracking-wide">로그</th>
+                    {/* <th className="py-3 px-2 font-semibold text-xs tracking-wide">로그</th> */}
                     <th className="py-3 px-2 font-semibold text-xs tracking-wide">삭제</th>
                     </tr>
                 </thead>
@@ -262,12 +262,12 @@ const MainPage = ({ user, onLogout }) => {
                             <FaExternalLinkAlt className="inline-block text-xs mb-0.5" />
                         </a>
                         </td>
-                        <td className="py-3 px-2 align-middle text-center">
+                        {/* <td className="py-3 px-2 align-middle text-center">
                         <button className="p-1 rounded hover:bg-gray-100 text-gray-500 text-sm" title="로그보기"
                             onClick={() => handleLogs(c.name)}>
                             <FiFileText />
                         </button>
-                        </td>
+                        </td> */}
                         <td className="py-3 px-2 align-middle text-center">
                         <button className="p-1 rounded hover:bg-gray-100 text-gray-500 text-sm" title="삭제"
                             onClick={() => handleDelete(c.name)}>
