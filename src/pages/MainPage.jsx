@@ -46,20 +46,20 @@ const MainPage = ({ user, onLogout }) => {
     // 컨테이너 목록 새로고침 함수
     const refreshContainerList = () => {
         setLoading(true);
-        getContainerList()
+        getContainerList({userId: user.userId, userPW: user.userPW})
             .then((res) => {
-                const mapped = res.data.map(mapApiContainer);
+                const mapped = res.data.data.map(mapApiContainer);
                 setContainerData(mapped);
                 setLoading(false);
             })
             .catch((err) => {
-                console.error("데이터 로딩 실패", err);
+                
                 setLoading(false);
             });
     };
 
     const handleStart = (name) => { // 컨테이너 시작 API 호출
-        startContainer({userId: user.userId, userPw: user.userPw, serverName: name})
+        startContainer({userId: user.userId, userPW: user.userPW, serverName: name})
             .then(() => {
                 setContainerData((prev) =>
                     prev.map((item) =>
@@ -71,7 +71,7 @@ const MainPage = ({ user, onLogout }) => {
     }
 
     const handleStop = (name) => { // 컨테이너 중지 API 호출
-        stopContainer({userId: user.userId, userPw: user.userPw, serverName: name})
+        stopContainer({userId: user.userId, userPW: user.userPW, serverName: name})
             .then(() => {
                 setContainerData((prev) =>
                     prev.map((item) =>
@@ -82,13 +82,13 @@ const MainPage = ({ user, onLogout }) => {
             .catch(err => console.error("Stop error", err));
     }
 
-    const handleLogs = (name) => { // 컨테이너 로그 조회 API 호출
-        fetchLogs({userId: user.userId, userPw: user.userPw, serverName: name})
-            .then(res => {
-                alert(`로그 ${res.data.logs}`);
-            })
-            .catch(err => console.error("Logs error", err));
-    }
+    // const handleLogs = (name) => { // 컨테이너 로그 조회 API 호출
+    //     fetchLogs({userId: user.userId, userPW: user.userPW, serverName: name})
+    //         .then(res => {
+    //             alert(`로그 ${res.data.logs}`);
+    //         })
+    //         .catch(err => console.error("Logs error", err));
+    // }
 
     const handleDelete = (name) => { // 컨테이너 삭제 API 호출
         if (window.confirm(`${name} 컨테이너를 삭제하시겠습니까?`)){
@@ -96,7 +96,7 @@ const MainPage = ({ user, onLogout }) => {
                 const backup = [...prev];
                 const updated = prev.filter(item => item.name !== name);
 
-                deleteContainer({userId: user.userId, userPw: user.userPw, serverName: name})
+                deleteContainer({userId: user.userId, userPW: user.userPW, serverName: name})
                 .then(() => {
                     console.log("삭제 완료");
                 })
@@ -112,7 +112,7 @@ const MainPage = ({ user, onLogout }) => {
     };
 
     const handleCreateContainer = (formData) => { // 컨테이너 생성 API 호출
-        createContainer(formData)
+        createContainer({userId: user.userId, userPW: user.userPW, formData})
             .then((res) => {
                 alert("생성 완료");
                 setContainerData((prev) => [...prev, mapApiContainer(res.data)]);
@@ -125,22 +125,21 @@ const MainPage = ({ user, onLogout }) => {
     
     // 다운로드 데이터 불러오기
     const fetchDownloadData = () => {
-      getDownloadList().then(res => {
-        setDownloadData(res.data);
-      });
+        getDownloadList().then(res => {
+            setDownloadData(res.data);
+        });
     };
 
     useEffect(() =>{
         refreshContainerList();
-        getDockerVolume({userId: user.userId, userPw: user.userPw}).then((volumeNames) => {
-            setAvailableVolumes(volumeNames);
+        getDockerVolume({userId: user.userId, userPW: user.userPW}).then((response) => {
+            setAvailableVolumes(response.data);
         })
         .catch((err) => {
             console.log("도커 볼륨 로딩 실패", err);
         })
         fetchDownloadData();
-    }, [user.id, user.pw]);
-    console.log(availableVolumes);
+    }, [user.userId, user.userPW]);
 
     return (
         <div className="min-h-screen bg-gray-50 font-sans text-gray-900">
@@ -200,7 +199,7 @@ const MainPage = ({ user, onLogout }) => {
                     <col className="w-20" />
                     <col className="w-12" />
                     <col className="w-16" />
-                    <col className="w-12" />
+                    {/* <col className="w-12" /> */}
                     <col className="w-12" />
                 </colgroup>
                 <thead>
@@ -214,7 +213,7 @@ const MainPage = ({ user, onLogout }) => {
                     <th className="py-3 px-2 font-semibold text-xs tracking-wide">상태</th>
                     <th className="py-3 px-2 font-semibold text-xs tracking-wide">동작</th>
                     <th className="py-3 px-2 font-semibold text-xs tracking-wide">접속</th>
-                    <th className="py-3 px-2 font-semibold text-xs tracking-wide">로그</th>
+                    {/* <th className="py-3 px-2 font-semibold text-xs tracking-wide">로그</th> */}
                     <th className="py-3 px-2 font-semibold text-xs tracking-wide">삭제</th>
                     </tr>
                 </thead>
@@ -262,12 +261,12 @@ const MainPage = ({ user, onLogout }) => {
                             <FaExternalLinkAlt className="inline-block text-xs mb-0.5" />
                         </a>
                         </td>
-                        <td className="py-3 px-2 align-middle text-center">
+                        {/* <td className="py-3 px-2 align-middle text-center">
                         <button className="p-1 rounded hover:bg-gray-100 text-gray-500 text-sm" title="로그보기"
                             onClick={() => handleLogs(c.name)}>
                             <FiFileText />
                         </button>
-                        </td>
+                        </td> */}
                         <td className="py-3 px-2 align-middle text-center">
                         <button className="p-1 rounded hover:bg-gray-100 text-gray-500 text-sm" title="삭제"
                             onClick={() => handleDelete(c.name)}>
