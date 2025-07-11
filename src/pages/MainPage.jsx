@@ -59,7 +59,7 @@ const MainPage = ({ user, onLogout }) => {
     };
 
     const handleStart = (name) => { // 컨테이너 시작 API 호출
-        startContainer({userId: user.userId, userPw: user.userPw, serverName: name})
+        startContainer({userId: user.userId, userPW: user.userPW, serverName: name})
             .then(() => {
                 setContainerData((prev) =>
                     prev.map((item) =>

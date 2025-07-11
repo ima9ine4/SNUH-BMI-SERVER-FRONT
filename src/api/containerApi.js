@@ -19,17 +19,16 @@ export const getContainerList = ({userId, userPW}) => {
     )
 }
 
-// export const getContainerList = () => {
-//     return axios.get(`${BASE_URL}/api/`)
-// }
-//
-
-export const startContainer = ({userId, userPw, serverName}) => {
+export const startContainer = ({userId, userPW, serverName}) => {
     console.log(`Start Container: ${serverName}`);
-    return Promise.resolve({success : true});
-    //     return axios.get(`${BASE_URL}/api/`, {
-    //     params: { userId, userPw, serverName}
-    // })
+    return axios.get(`${BASE_URL}/container_manager/restart`, {
+        params: { serverName },
+        headers: {
+            'accept': 'application/json',
+            'userID': userId,
+            'userPW': userPW
+        }
+    })
 }
 
 export const stopContainer = ({userId, userPw, serverName}) => {
