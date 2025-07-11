@@ -46,14 +46,14 @@ const MainPage = ({ user, onLogout }) => {
     // 컨테이너 목록 새로고침 함수
     const refreshContainerList = () => {
         setLoading(true);
-        getContainerList()
+        getContainerList({userId: user.userId, userPW: user.userPW})
             .then((res) => {
-                const mapped = res.data.map(mapApiContainer);
+                const mapped = res.data.data.map(mapApiContainer);
                 setContainerData(mapped);
                 setLoading(false);
             })
             .catch((err) => {
-                console.error("데이터 로딩 실패", err);
+                
                 setLoading(false);
             });
     };
