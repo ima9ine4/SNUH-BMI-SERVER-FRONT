@@ -4,12 +4,12 @@ import { loginUser } from "../api/loginApi";
 
 const LoginPage = ({ onLogin }) => {
     const [ userId, setUserId ] = useState("");
-    const [ userPw, setuserPw ] = useState("");
+    const [ userPW, setuserPW ] = useState("");
     const [ error, setError ] = useState("");
     const [ loading, setLoading ] = useState(false);
     
     const handleLogin = async () => {
-        if (userId === "" || userPw === ""){
+        if (userId === "" || userPW === ""){
             setError("아이디와 비밀번호를 모두 입력해주세요.");
             return;
         }
@@ -18,14 +18,14 @@ const LoginPage = ({ onLogin }) => {
         setError("");
 
         try {
-            const response = await loginUser({ userId, userPw });
+            const response = await loginUser({ userId, userPW });
             const responseData = response.data;
             
             if(responseData.status === "로그인 성공"){
                 onLogin(
                     {
                         userId: responseData.userId,
-                        userPw: responseData.userPw
+                        userPW: responseData.userPW
                     }
                 );
                 
@@ -68,15 +68,15 @@ const LoginPage = ({ onLogin }) => {
                         </div>
                         
                         <div>
-                            <label htmlFor="userPw" className="block text-sm font-medium text-gray-700 mb-2">
+                            <label htmlFor="userPW" className="block text-sm font-medium text-gray-700 mb-2">
                                 비밀번호
                             </label>
                             <input
-                                id="userPw"
+                                id="userPW"
                                 type="password"
                                 placeholder="비밀번호를 입력하세요"
-                                value={userPw}
-                                onChange={(e) => setuserPw(e.target.value)}
+                                value={userPW}
+                                onChange={(e) => setuserPW(e.target.value)}
                                 disabled={loading}
                                 className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-gray-900 placeholder-gray-400 disabled:bg-gray-50"
                             />
