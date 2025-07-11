@@ -31,12 +31,16 @@ export const startContainer = ({userId, userPW, serverName}) => {
     })
 }
 
-export const stopContainer = ({userId, userPw, serverName}) => {
+export const stopContainer = ({userId, userPW, serverName}) => {
     console.log(`Stop Container: ${serverName}`);
-    return Promise.resolve({success : true});
-    //     return axios.get(`${BASE_URL}/api/`, {
-    //     params: { userId, userPw, serverName}
-    // })
+     return axios.get(`${BASE_URL}/container_manager/stop`, {
+        params: { serverName },
+        headers: {
+            'accept': 'application/json',
+            'userID': userId,
+            'userPW': userPW
+        }
+    })
 }
 
 // export const fetchLogs = ({userId, userPW, serverName}) => {

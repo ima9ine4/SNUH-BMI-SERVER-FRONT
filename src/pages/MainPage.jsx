@@ -71,7 +71,7 @@ const MainPage = ({ user, onLogout }) => {
     }
 
     const handleStop = (name) => { // 컨테이너 중지 API 호출
-        stopContainer({userId: user.userId, userPw: user.userPw, serverName: name})
+        stopContainer({userId: user.userId, userPW: user.userPW, serverName: name})
             .then(() => {
                 setContainerData((prev) =>
                     prev.map((item) =>
