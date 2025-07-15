@@ -8,6 +8,7 @@ import { LuRefreshCw } from "react-icons/lu";
 import { getDownloadList } from '../api/downloadApi';
 import { MdOutlineReplay } from "react-icons/md";
 import { FaRegCircleStop } from "react-icons/fa6";
+import ContainerSkeletonRow from '../components/skeleton/ContainerSekeletonRow';
 
 
 const COMPANY_NAME = 'SNUH BMI LAB SERVER';
@@ -31,6 +32,8 @@ function mapApiContainer(apiObj) { // api response의 원본 json 배열을 가�
 const MainPage = ({ user, onLogout }) => {
     const [containerData, setContainerData] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [createLoading, setCreateLoading] = useState(false);
+    const [statusLoading, setStatusLoading] = useState(false);
     const [page, setPage] = useState(1);
     const [profileOpen, setProfileOpen] = useState(false);
     const [showModal, setShowModal] = useState(false);
@@ -59,6 +62,7 @@ const MainPage = ({ user, onLogout }) => {
     };
 
     const handleStart = (name) => { // 컨테이너 시작 API 호출
+        setStatusLoading(prev => ({ ...prev, [name]: true}));
         startContainer({userId: user.userId, userPW: user.userPW, serverName: name})
             .then(() => {
                 setContainerData((prev) =>
@@ -67,10 +71,14 @@ const MainPage = ({ user, onLogout }) => {
                     )
                 );
             })
-            .catch(err => console.error("Start error", err));
+            .catch(err => console.error("Start error", err))
+            .finally(() => {
+                setStatusLoading(prev => ({ ...prev, [name]: false }));
+            });
     }
 
     const handleStop = (name) => { // 컨테이너 중지 API 호출
+        setStatusLoading(prev => ({ ...prev, [name]: true}));
         stopContainer({userId: user.userId, userPW: user.userPW, serverName: name})
             .then(() => {
                 setContainerData((prev) =>
@@ -79,7 +87,10 @@ const MainPage = ({ user, onLogout }) => {
                     )
                 );
             })
-            .catch(err => console.error("Stop error", err));
+            .catch(err => console.error("Stop error", err))
+            .finally(() => {
+                setStatusLoading(prev => ({ ...prev, [name]: false }));
+            });
     }
 
     // const handleLogs = (name) => { // 컨테이너 로그 조회 API 호출
@@ -112,14 +123,18 @@ const MainPage = ({ user, onLogout }) => {
     };
 
     const handleCreateContainer = (formData) => { // 컨테이너 생성 API 호출
+        setCreateLoading(true);
         createContainer({userId: user.userId, userPW: user.userPW, formData})
             .then((res) => {
                 alert("생성 완료");
-                setContainerData((prev) => [...prev, mapApiContainer(res.data)]);
                 setShowModal(false);
+                refreshContainerList();
             })
             .catch((err) => {
                 alert("생성 실패");
+            })
+            .finally(() => {
+                setCreateLoading(false);
             });
     };
     
@@ -220,63 +235,76 @@ const MainPage = ({ user, onLogout }) => {
                     </tr>
                 </thead>
                 <tbody>
-                    {pagedData.map((c) => (
-                    <tr key={c.id} className="group border-b border-gray-100 last:border-0 hover:bg-blue-50/60 transition">
-                        <td className="py-3 px-2 align-middle text-center font-semibold text-gray-700 truncate">{c.name}</td>
-                        <td className="py-3 px-2 align-middle text-center text-gray-700 truncate">{c.image}</td>
-                        <td className="py-3 px-2 align-middle text-center text-gray-700">{c.cpu}</td>
-                        <td className="py-3 px-2 align-middle text-center text-gray-700">{c.ram}</td>
-                        <td className="py-3 px-2 align-middle text-center text-gray-700">{c.gpu}</td>
-                        <td className="py-3 px-2 align-middle text-center text-gray-700">{c.server}</td>
-                        <td className="py-3 px-2 align-middle text-center">
-                        <span className={`inline-block px-2.5 py-1 rounded-full text-xs font-semibold border ${c.status === 'Running' ? 'bg-green-50 text-green-700 border-green-200' : 'bg-red-50 text-red-600 border-red-200'}`}>{c.status}</span>
-                        </td>
-                        <td className="py-3 px-2 align-middle text-center">
-                        {/* 동작 버튼 */}
-                        {c.status === 'Running' ? (
-                            <button
-                                className="p-1 rounded hover:bg-gray-100 text-gray-500 text-sm"
-                                title="중지"
-                                onClick={() => handleStop(c.name)}
-                            >
-                                <FaRegCircleStop />
-                            </button>
-                            ) : (
-                            <button
-                                className="p-1 rounded hover:bg-gray-100 text-gray-500 text-sm"
-                                title="재시작"
-                                onClick={() => handleStart(c.name)}
-                            >
-                                <MdOutlineReplay />
-                            </button>
-                        )}
-                        </td>
-                        <td className="py-3 px-2 align-middle text-center">
-                        <a
-                            href={c.address}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="inline-flex items-center gap-1 text-blue-600 hover:text-blue-800 font-medium underline"
-                            title="접속"
-                        >
-                            접속
-                            <FaExternalLinkAlt className="inline-block text-xs mb-0.5" />
-                        </a>
-                        </td>
-                        {/* <td className="py-3 px-2 align-middle text-center">
-                        <button className="p-1 rounded hover:bg-gray-100 text-gray-500 text-sm" title="로그보기"
-                            onClick={() => handleLogs(c.name)}>
-                            <FiFileText />
-                        </button>
-                        </td> */}
-                        <td className="py-3 px-2 align-middle text-center">
-                        <button className="p-1 rounded hover:bg-gray-100 text-gray-500 text-sm" title="삭제"
-                            onClick={() => handleDelete(c.name)}>
-                            <FiTrash2 />
-                        </button>
-                        </td>
-                    </tr>
-                    ))}
+                    {loading
+                        ? Array.from({ length: 4 }).map((_, idx) => <ContainerSkeletonRow key={idx} />)
+                        : pagedData.map((c) => (
+                            <tr key={c.id} className="group border-b border-gray-100 last:border-0 hover:bg-blue-50/60 transition">
+                                <td className="py-3 px-2 align-middle text-center font-semibold text-gray-700 truncate">{c.name}</td>
+                                <td className="py-3 px-2 align-middle text-center text-gray-700 truncate">{c.image}</td>
+                                <td className="py-3 px-2 align-middle text-center text-gray-700">{c.cpu}</td>
+                                <td className="py-3 px-2 align-middle text-center text-gray-700">{c.ram}</td>
+                                <td className="py-3 px-2 align-middle text-center text-gray-700">{c.gpu}</td>
+                                <td className="py-3 px-2 align-middle text-center text-gray-700">{c.server}</td>
+                                <td className="py-3 px-2 align-middle text-center">
+                                <span className={`inline-block px-2.5 py-1 rounded-full text-xs font-semibold border ${c.status === 'Running' ? 'bg-green-50 text-green-700 border-green-200' : 'bg-red-50 text-red-600 border-red-200'}`}>{c.status}</span>
+                                </td>
+                                <td className="py-3 px-2 align-middle text-center">
+                                {/* 동작 버튼 */}
+                                {statusLoading[c.name] ? (
+                                    <div className="flex items-center justify-center h-6">
+                                        <div className='flex space-x-1'>
+                                            <div className='w-1 h-1 bg-gray-400 rounded-full animate-bounce'></div>
+                                            <div className='w-1 h-1 bg-gray-400 rounded-full animate-bounce' style={{animationDelay: '0.1s'}}></div>
+                                            <div className='w-1 h-1 bg-gray-400 rounded-full animate-bounce' style={{animationDelay: '0.2s'}}></div>
+                                        </div>
+                                    </div>
+                                ) : c.status === 'Running' ? (
+                                    <button
+                                        className="p-1 rounded hover:bg-gray-100 text-gray-500 text-sm"
+                                        title="중지"
+                                        onClick={() => handleStop(c.name)}
+                                        disabled={statusLoading[c.name]}
+                                    >
+                                        <FaRegCircleStop />
+                                    </button>
+                                    ) : (
+                                    <button
+                                        className="p-1 rounded hover:bg-gray-100 text-gray-500 text-sm"
+                                        title="재시작"
+                                        onClick={() => handleStart(c.name)}
+                                        disabled={statusLoading[c.name]}
+                                    >
+                                        <MdOutlineReplay />
+                                    </button>
+                                )}
+                                </td>
+                                <td className="py-3 px-2 align-middle text-center">
+                                <a
+                                    href={c.address}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="inline-flex items-center gap-1 text-blue-600 hover:text-blue-800 font-medium underline"
+                                    title="접속"
+                                >
+                                    접속
+                                    <FaExternalLinkAlt className="inline-block text-xs mb-0.5" />
+                                </a>
+                                </td>
+                                {/* <td className="py-3 px-2 align-middle text-center">
+                                <button className="p-1 rounded hover:bg-gray-100 text-gray-500 text-sm" title="로그보기"
+                                    onClick={() => handleLogs(c.name)}>
+                                    <FiFileText />
+                                </button>
+                                </td> */}
+                                <td className="py-3 px-2 align-middle text-center">
+                                <button className="p-1 rounded hover:bg-gray-100 text-gray-500 text-sm" title="삭제"
+                                    onClick={() => handleDelete(c.name)}>
+                                    <FiTrash2 />
+                                </button>
+                                </td>
+                            </tr>
+                        )
+                    )}
                 </tbody>
                 </table>
                 {/* 페이지네이션 */}
@@ -286,6 +314,19 @@ const MainPage = ({ user, onLogout }) => {
                 <button onClick={() => setPage(page + 1)} disabled={page === totalPages} className="px-3 py-1 rounded bg-gray-100 text-gray-500 disabled:opacity-50 disabled:cursor-not-allowed">&gt;</button>
                 </div>
             </div>
+
+            {createLoading && (
+                <div className="fixed inset-0 flex items-center justify-center z-50">
+                    <div className='flex flex-col items-center gap-4'>
+                        <div className='flex space-x-2'>
+                            <div className='w-3 h-3 bg-blue-600 rounded-full animate-bounce'></div>
+                            <div className='w-3 h-3 bg-blue-600 rounded-full animate-bounce' style={{animationDelay: '0.1s'}}></div>
+                            <div className='w-3 h-3 bg-blue-600 rounded-full animate-bounce' style={{animationDelay: '0.2s'}}></div>
+                        </div>
+                        <p className='text-xl text-gray-700 font-bold'>컨테이너 생성 중...</p>
+                    </div>
+                </div>
+            )}
 
             {/* 다운로드 목록 헤더 */}
             {/* <div className="max-w-7xl mx-auto flex justify-between items-center px-3 mt-8 mb-4">
