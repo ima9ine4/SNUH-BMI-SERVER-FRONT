@@ -32,6 +32,7 @@ function mapApiContainer(apiObj) { // api response의 원본 json 배열을 가�
 const MainPage = ({ user, onLogout }) => {
     const [containerData, setContainerData] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [createLoading, setCreateLoading] = useState(false);
     const [page, setPage] = useState(1);
     const [profileOpen, setProfileOpen] = useState(false);
     const [showModal, setShowModal] = useState(false);
@@ -113,6 +114,7 @@ const MainPage = ({ user, onLogout }) => {
     };
 
     const handleCreateContainer = (formData) => { // 컨테이너 생성 API 호출
+        setCreateLoading(true);
         createContainer({userId: user.userId, userPW: user.userPW, formData})
             .then((res) => {
                 alert("생성 완료");
@@ -121,6 +123,9 @@ const MainPage = ({ user, onLogout }) => {
             })
             .catch((err) => {
                 alert("생성 실패");
+            })
+            .finally(() => {
+                setCreateLoading(false);
             });
     };
     
@@ -288,6 +293,19 @@ const MainPage = ({ user, onLogout }) => {
                 <button onClick={() => setPage(page + 1)} disabled={page === totalPages} className="px-3 py-1 rounded bg-gray-100 text-gray-500 disabled:opacity-50 disabled:cursor-not-allowed">&gt;</button>
                 </div>
             </div>
+
+            {createLoading && (
+                <div className="fixed inset-0 flex items-center justify-center z-50">
+                    <div className='flex flex-col items-center gap-4'>
+                        <div className='flex space-x-2'>
+                            <div className='w-3 h-3 bg-blue-600 rounded-full animate-bounce'></div>
+                            <div className='w-3 h-3 bg-blue-600 rounded-full animate-bounce' style={{animationDelay: '0.1s'}}></div>
+                            <div className='w-3 h-3 bg-blue-600 rounded-full animate-bounce' style={{animationDelay: '0.2s'}}></div>
+                        </div>
+                        <p className='text-xl text-gray-700 font-bold'>컨테이너 생성 중...</p>
+                    </div>
+                </div>
+            )}
 
             {/* 다운로드 목록 헤더 */}
             <div className="max-w-7xl mx-auto flex justify-between items-center px-3 mt-8 mb-4">
