@@ -133,7 +133,9 @@ const MainPage = ({ user, onLogout }) => {
     useEffect(() =>{
         refreshContainerList();
         getDockerVolume({userId: user.userId, userPW: user.userPW}).then((response) => {
-            setAvailableVolumes(response.data);
+            if(response.data.status_code !== 404){ // 도커 볼륨이 있을 때만
+                setAvailableVolumes(response.data );
+            }
         })
         .catch((err) => {
             console.log("도커 볼륨 로딩 실패", err);
