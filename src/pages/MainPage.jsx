@@ -116,8 +116,8 @@ const MainPage = ({ user, onLogout }) => {
         createContainer({userId: user.userId, userPW: user.userPW, formData})
             .then((res) => {
                 alert("생성 완료");
-                setContainerData((prev) => [...prev, mapApiContainer(res.data)]);
                 setShowModal(false);
+                refreshContainerList();
             })
             .catch((err) => {
                 alert("생성 실패");
