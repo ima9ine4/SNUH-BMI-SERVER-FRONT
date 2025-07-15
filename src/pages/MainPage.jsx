@@ -288,7 +288,7 @@ const MainPage = ({ user, onLogout }) => {
             </div>
 
             {/* 다운로드 목록 헤더 */}
-            <div className="max-w-7xl mx-auto flex justify-between items-center px-3 mt-8 mb-4">
+            {/* <div className="max-w-7xl mx-auto flex justify-between items-center px-3 mt-8 mb-4">
                 <div className="flex gap-2">
                     <span className="text-3xl font-medium text-gray-900 mb-2">파일 다운로드</span>
                     <button
@@ -299,10 +299,10 @@ const MainPage = ({ user, onLogout }) => {
                         <LuRefreshCw size={18} />
                     </button>
                 </div>
-            </div>
+            </div> */}
 
             {/* 다운로드 목록 테이블 */}
-            <div className="max-w-7xl mx-auto bg-white rounded-xl shadow-md border border-gray-200 mb-10 overflow-x-auto">
+            {/* <div className="max-w-7xl mx-auto bg-white rounded-xl shadow-md border border-gray-200 mb-10 overflow-x-auto">
                 <table className="w-full min-w-[900px] text-xs sm:text-sm table-fixed">
                 <colgroup>
                     <col className="w-16" />
@@ -351,14 +351,14 @@ const MainPage = ({ user, onLogout }) => {
                     </tr>
                     ))}
                 </tbody>
-                </table>
+                </table> */}
                 {/* 페이지네이션 */}
-                <div className="flex justify-center items-center gap-4 py-4">
+                {/* <div className="flex justify-center items-center gap-4 py-4">
                     <button onClick={() => setDownloadPage(downloadPage - 1)} disabled={downloadPage === 1} className="px-3 py-1 rounded bg-gray-100 text-gray-500 disabled:opacity-50 disabled:cursor-not-allowed">&lt;</button>
                     <span className="text-gray-700 text-xs sm:text-sm">{downloadPage} / {downloadTotalPages}</span>
                     <button onClick={() => setDownloadPage(downloadPage + 1)} disabled={downloadPage === downloadTotalPages} className="px-3 py-1 rounded bg-gray-100 text-gray-500 disabled:opacity-50 disabled:cursor-not-allowed">&gt;</button>
                 </div>
-            </div>
+            </div> */}
         </div>
     );
 }
