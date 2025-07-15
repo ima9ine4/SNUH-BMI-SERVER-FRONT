@@ -33,6 +33,7 @@ const MainPage = ({ user, onLogout }) => {
     const [containerData, setContainerData] = useState([]);
     const [loading, setLoading] = useState(true);
     const [createLoading, setCreateLoading] = useState(false);
+    const [statusLoading, setStatusLoading] = useState(false);
     const [page, setPage] = useState(1);
     const [profileOpen, setProfileOpen] = useState(false);
     const [showModal, setShowModal] = useState(false);
@@ -61,6 +62,7 @@ const MainPage = ({ user, onLogout }) => {
     };
 
     const handleStart = (name) => { // 컨테이너 시작 API 호출
+        setStatusLoading(prev => ({ ...prev, [name]: true}));
         startContainer({userId: user.userId, userPW: user.userPW, serverName: name})
             .then(() => {
                 setContainerData((prev) =>
@@ -69,10 +71,14 @@ const MainPage = ({ user, onLogout }) => {
                     )
                 );
             })
-            .catch(err => console.error("Start error", err));
+            .catch(err => console.error("Start error", err))
+            .finally(() => {
+                setStatusLoading(prev => ({ ...prev, [name]: false }));
+            });
     }
 
     const handleStop = (name) => { // 컨테이너 중지 API 호출
+        setStatusLoading(prev => ({ ...prev, [name]: true}));
         stopContainer({userId: user.userId, userPW: user.userPW, serverName: name})
             .then(() => {
                 setContainerData((prev) =>
@@ -81,7 +87,10 @@ const MainPage = ({ user, onLogout }) => {
                     )
                 );
             })
-            .catch(err => console.error("Stop error", err));
+            .catch(err => console.error("Stop error", err))
+            .finally(() => {
+                setStatusLoading(prev => ({ ...prev, [name]: false }));
+            });
     }
 
     // const handleLogs = (name) => { // 컨테이너 로그 조회 API 호출
@@ -239,11 +248,20 @@ const MainPage = ({ user, onLogout }) => {
                                 </td>
                                 <td className="py-3 px-2 align-middle text-center">
                                 {/* 동작 버튼 */}
-                                {c.status === 'Running' ? (
+                                {statusLoading[c.name] ? (
+                                    <div className="flex items-center justify-center h-6">
+                                        <div className='flex space-x-1'>
+                                            <div className='w-1 h-1 bg-gray-400 rounded-full animate-bounce'></div>
+                                            <div className='w-1 h-1 bg-gray-400 rounded-full animate-bounce' style={{animationDelay: '0.1s'}}></div>
+                                            <div className='w-1 h-1 bg-gray-400 rounded-full animate-bounce' style={{animationDelay: '0.2s'}}></div>
+                                        </div>
+                                    </div>
+                                ) : c.status === 'Running' ? (
                                     <button
                                         className="p-1 rounded hover:bg-gray-100 text-gray-500 text-sm"
                                         title="중지"
                                         onClick={() => handleStop(c.name)}
+                                        disabled={statusLoading[c.name]}
                                     >
                                         <FaRegCircleStop />
                                     </button>
@@ -252,6 +270,7 @@ const MainPage = ({ user, onLogout }) => {
                                         className="p-1 rounded hover:bg-gray-100 text-gray-500 text-sm"
                                         title="재시작"
                                         onClick={() => handleStart(c.name)}
+                                        disabled={statusLoading[c.name]}
                                     >
                                         <MdOutlineReplay />
                                     </button>
