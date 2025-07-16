@@ -51,7 +51,8 @@ const MainPage = ({ user, onLogout }) => {
         setLoading(true);
         getContainerList({userId: user.userId, userPW: user.userPW})
             .then((res) => {
-                const mapped = res.data.data.map(mapApiContainer);
+                const reverse = res.data.data.reverse();
+                const mapped = reverse.map(mapApiContainer);
                 setContainerData(mapped);
                 setLoading(false);
             })
