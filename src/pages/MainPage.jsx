@@ -150,7 +150,7 @@ const MainPage = ({ user, onLogout }) => {
         refreshContainerList();
         getDockerVolume({userId: user.userId, userPW: user.userPW}).then((response) => {
             if(response.data.status_code !== 404){ // 도커 볼륨이 있을 때만
-                setAvailableVolumes(response.data );
+                setAvailableVolumes(response.data);
             }
         })
         .catch((err) => {
