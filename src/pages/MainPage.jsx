@@ -3,12 +3,14 @@ import { FaChevronDown, FaExternalLinkAlt } from 'react-icons/fa';
 import { FiFileText, FiTrash2 } from 'react-icons/fi';
 import {getContainerList, startContainer, stopContainer, fetchLogs, deleteContainer, createContainer, getDockerVolume} from '../api/containerApi';
 import NewContainerModal from '../components/NewContainerModal'
+import PasswordChangeModal from '../components/PasswordChangeModal'
 import { BsDownload } from 'react-icons/bs';
 import { LuRefreshCw } from "react-icons/lu";
 import { getDownloadList } from '../api/downloadApi';
 import { MdOutlineReplay } from "react-icons/md";
 import { FaRegCircleStop } from "react-icons/fa6";
 import ContainerSkeletonRow from '../components/skeleton/ContainerSekeletonRow';
+import { changePassword } from '../api/loginApi';
 
 
 const COMPANY_NAME = 'SNUH BMI LAB SERVER';
@@ -37,6 +39,7 @@ const MainPage = ({ user, onLogout }) => {
     const [page, setPage] = useState(1);
     const [profileOpen, setProfileOpen] = useState(false);
     const [showModal, setShowModal] = useState(false);
+    const [showPasswordChangeModal, setShowPasswordChangeModal] = useState(false);
     const [availableVolumes, setAvailableVolumes] = useState([]);
     const totalPages = Math.ceil(containerData.length / PAGE_SIZE);
     const pagedData = containerData.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
@@ -137,6 +140,19 @@ const MainPage = ({ user, onLogout }) => {
                 setCreateLoading(false);
             });
     };
+
+    const handleChangePassword = (new_password) => {  // 비밀번호 변경 API 호출
+        changePassword({userId: user.userId, userPW: user.userPW, new_password})
+            .then(() => {
+                alert("비밀번호가 성공적으로 변경되었습니다. \n새로운 비밀번호로 다시 로그인 해주세요.");
+                setProfileOpen(false);
+                setShowPasswordChangeModal(false);
+                onLogout();
+            })
+            .catch((err) => {
+                alert("비밀번호 변경에 실패하였습니다.");  
+            })
+    }
     
     // 다운로드 데이터 불러오기
     const fetchDownloadData = () => {
@@ -172,6 +188,14 @@ const MainPage = ({ user, onLogout }) => {
                     {profileOpen && (
                     <div className="absolute right-0 mt-2 w-40 bg-white border border-gray-200 rounded-lg shadow-lg py-2 z-20">
                         <div className="px-4 py-2 text-blue-700 text-xs font-semibold">{user.userId}</div>
+                        <button className="w-full text-left px-4 py-2 text-black-500 hover:bg-red-50 text-xs font-medium" onClick={() => setShowPasswordChangeModal(true)}>비밀번호 변경</button>
+                        {showPasswordChangeModal && (
+                            <PasswordChangeModal
+                                onClose={() => setShowPasswordChangeModal(false)}
+                                onSubmit={handleChangePassword}
+                                user = {user}
+                            />
+                        )}
                         <button className="w-full text-left px-4 py-2 text-red-500 hover:bg-red-50 text-xs font-medium" onClick={onLogout}>로그아웃</button>
                     </div>
                     )}
