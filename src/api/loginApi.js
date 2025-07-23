@@ -17,3 +17,16 @@ export const loginUser = ({ userId, userPW }) => {
             return response;
         });
 };
+
+export const changePassword = ({ userId, userPW, new_password })=> {
+    const requestBody = {
+        'new_password': new_password
+    };
+    return axios.put(`${BASE_URL}/container_manager/password`, requestBody, {
+        headers: {
+            'accept': 'application/json',
+            'userID': userId,
+            'userPW': userPW
+        }
+    });
+}
