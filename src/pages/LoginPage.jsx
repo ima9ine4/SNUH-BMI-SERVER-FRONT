@@ -33,7 +33,7 @@ const LoginPage = ({ onLogin }) => {
                 setError("로그인에 실패했습니다.")
             }
         } catch (err) {
-            setError(err.message || "로그인에 실패했습니다.");
+            setError("로그인에 실패했습니다.");
         } finally {
             setLoading(false);
         }

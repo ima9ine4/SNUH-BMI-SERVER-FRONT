@@ -259,7 +259,7 @@ const NewContainerModal = ({ onClose, onSubmit, volumeOptions }) => {
                         취소
                     </button>
                     <button onClick={handleSubmit} className="text-sm px-5 py-2 rounded bg-blue-600 text-white hover:bg-blue-700">
-                        생성
+                        생성하기
                     </button>
                 </div>
             </div>

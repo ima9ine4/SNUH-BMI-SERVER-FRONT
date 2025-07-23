@@ -1,14 +1,16 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { FaChevronDown, FaExternalLinkAlt } from 'react-icons/fa';
 import { FiFileText, FiTrash2 } from 'react-icons/fi';
 import {getContainerList, startContainer, stopContainer, fetchLogs, deleteContainer, createContainer, getDockerVolume} from '../api/containerApi';
 import NewContainerModal from '../components/NewContainerModal'
+import PasswordChangeModal from '../components/PasswordChangeModal'
 import { BsDownload } from 'react-icons/bs';
 import { LuRefreshCw } from "react-icons/lu";
 import { getDownloadList } from '../api/downloadApi';
 import { MdOutlineReplay } from "react-icons/md";
 import { FaRegCircleStop } from "react-icons/fa6";
 import ContainerSkeletonRow from '../components/skeleton/ContainerSekeletonRow';
+import { changePassword } from '../api/loginApi';
 
 
 const COMPANY_NAME = 'SNUH BMI LAB SERVER';
@@ -36,7 +38,9 @@ const MainPage = ({ user, onLogout }) => {
     const [statusLoading, setStatusLoading] = useState(false);
     const [page, setPage] = useState(1);
     const [profileOpen, setProfileOpen] = useState(false);
+    const profileRef = useRef(null);
     const [showModal, setShowModal] = useState(false);
+    const [showPasswordChangeModal, setShowPasswordChangeModal] = useState(false);
     const [availableVolumes, setAvailableVolumes] = useState([]);
     const totalPages = Math.ceil(containerData.length / PAGE_SIZE);
     const pagedData = containerData.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
@@ -126,17 +130,30 @@ const MainPage = ({ user, onLogout }) => {
         setCreateLoading(true);
         createContainer({userId: user.userId, userPW: user.userPW, formData})
             .then((res) => {
-                alert("생성 완료");
+                alert("컨테이너 생성이 완료되었습니다.");
                 setShowModal(false);
                 refreshContainerList();
             })
             .catch((err) => {
-                alert("생성 실패");
+                alert("컨테이너 생성에 실패하였습니다.");
             })
             .finally(() => {
                 setCreateLoading(false);
             });
     };
+
+    const handleChangePassword = (new_password) => {  // 비밀번호 변경 API 호출
+        changePassword({userId: user.userId, userPW: user.userPW, new_password})
+            .then(() => {
+                alert("비밀번호가 성공적으로 변경되었습니다. \n새로운 비밀번호로 다시 로그인 해주세요.");
+                setProfileOpen(false);
+                setShowPasswordChangeModal(false);
+                onLogout();
+            })
+            .catch((err) => {
+                alert("비밀번호 변경에 실패하였습니다.");  
+            })
+    }
     
     // 다운로드 데이터 불러오기
     const fetchDownloadData = () => {
@@ -158,13 +175,26 @@ const MainPage = ({ user, onLogout }) => {
         fetchDownloadData();
     }, [user.userId, user.userPW]);
 
+    useEffect(() => {
+        function handleClickOutside(event) {
+            if(profileRef.current && !profileRef.current.contains(event.target)){
+                setProfileOpen(false);
+            }
+        }
+
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, [setProfileOpen]);
+
     return (
         <div className="min-h-screen bg-gray-50 font-sans text-gray-900">
             {/* 상단바 */}
             <nav className="w-full bg-white border-b border-gray-200 shadow-sm">
                 <div className="max-w-7xl mx-auto flex justify-between items-center px-3 h-14">
                 <span className="text-base sm:text-lg font-bold tracking-wide text-blue-700">{COMPANY_NAME}</span>
-                <div className="relative">
+                <div className="relative" ref={profileRef}>
                     <button className="flex items-center gap-2 px-2 py-1 rounded-full hover:bg-gray-100 transition" onClick={() => setProfileOpen(v => !v)}>
                     <span className="text-sm text-gray-800 font-medium">{user.userId}</span>
                     <FaChevronDown className="text-gray-400 text-xs" />
@@ -172,6 +202,14 @@ const MainPage = ({ user, onLogout }) => {
                     {profileOpen && (
                     <div className="absolute right-0 mt-2 w-40 bg-white border border-gray-200 rounded-lg shadow-lg py-2 z-20">
                         <div className="px-4 py-2 text-blue-700 text-xs font-semibold">{user.userId}</div>
+                        <button className="w-full text-left px-4 py-2 text-black-500 hover:bg-red-50 text-xs font-medium" onClick={() => setShowPasswordChangeModal(true)}>비밀번호 변경</button>
+                        {showPasswordChangeModal && (
+                            <PasswordChangeModal
+                                onClose={() => setShowPasswordChangeModal(false)}
+                                onSubmit={handleChangePassword}
+                                user = {user}
+                            />
+                        )}
                         <button className="w-full text-left px-4 py-2 text-red-500 hover:bg-red-50 text-xs font-medium" onClick={onLogout}>로그아웃</button>
                     </div>
                     )}
