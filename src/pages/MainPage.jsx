@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { FaChevronDown, FaExternalLinkAlt } from 'react-icons/fa';
 import { FiFileText, FiTrash2 } from 'react-icons/fi';
 import {getContainerList, startContainer, stopContainer, fetchLogs, deleteContainer, createContainer, getDockerVolume} from '../api/containerApi';
@@ -38,6 +38,7 @@ const MainPage = ({ user, onLogout }) => {
     const [statusLoading, setStatusLoading] = useState(false);
     const [page, setPage] = useState(1);
     const [profileOpen, setProfileOpen] = useState(false);
+    const profileRef = useRef(null);
     const [showModal, setShowModal] = useState(false);
     const [showPasswordChangeModal, setShowPasswordChangeModal] = useState(false);
     const [availableVolumes, setAvailableVolumes] = useState([]);
@@ -174,13 +175,26 @@ const MainPage = ({ user, onLogout }) => {
         fetchDownloadData();
     }, [user.userId, user.userPW]);
 
+    useEffect(() => {
+        function handleClickOutside(event) {
+            if(profileRef.current && !profileRef.current.contains(event.target)){
+                setProfileOpen(false);
+            }
+        }
+
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, [setProfileOpen]);
+
     return (
         <div className="min-h-screen bg-gray-50 font-sans text-gray-900">
             {/* 상단바 */}
             <nav className="w-full bg-white border-b border-gray-200 shadow-sm">
                 <div className="max-w-7xl mx-auto flex justify-between items-center px-3 h-14">
                 <span className="text-base sm:text-lg font-bold tracking-wide text-blue-700">{COMPANY_NAME}</span>
-                <div className="relative">
+                <div className="relative" ref={profileRef}>
                     <button className="flex items-center gap-2 px-2 py-1 rounded-full hover:bg-gray-100 transition" onClick={() => setProfileOpen(v => !v)}>
                     <span className="text-sm text-gray-800 font-medium">{user.userId}</span>
                     <FaChevronDown className="text-gray-400 text-xs" />
