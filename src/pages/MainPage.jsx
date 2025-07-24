@@ -234,7 +234,7 @@ const MainPage = ({ user, onLogout }) => {
             {/* 컨테이너 목록 헤더 */}
             <div className="max-w-7xl mx-auto flex justify-between items-center px-3 mt-8 mb-4">
                 <div className="flex gap-2">
-                    <span className="text-3xl font-medium text-gray-900 mb-2">컨테이너 목록</span>
+                    <span className="text-3xl font-semibold text-gray-800 mb-2">컨테이너 목록</span>
                     <button
                         className="p-2 rounded-full hover:bg-gray-100 text-gray-400 mb-2"
                         title="컨테이너 목록 새로고침"
@@ -388,7 +388,7 @@ const MainPage = ({ user, onLogout }) => {
             {/* 다운로드 목록 헤더 */}
             <div className="max-w-7xl mx-auto flex justify-between items-center px-3 mt-8 mb-4">
                 <div className="flex gap-2">
-                    <span className="text-3xl font-medium text-gray-900 mb-2">파일 다운로드</span>
+                    <span className="text-3xl font-semibold text-gray-800 mb-2">파일 목록</span>
                     <button
                         className="p-2 rounded-full hover:bg-gray-100 text-gray-400 mb-2"
                         title="파일 다운로드 목록 새로고침"
