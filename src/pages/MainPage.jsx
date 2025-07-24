@@ -13,7 +13,8 @@ import FileListSkeletonRow from '../components/skeleton/FileListSkeletonRow';
 import { changePassword } from '../api/loginApi';
 import { getFileList } from '../api/FileApi';
 import dayjs from 'dayjs';
-
+import FileUploadModal from '../components/FileUploadModal';
+import { UploadFile } from '../api/FileApi';
 
 const COMPANY_NAME = 'SNUH BMI LAB SERVER';
 
@@ -49,6 +50,8 @@ const MainPage = ({ user, onLogout }) => {
 
     const [FileData, setFileData] = useState([]);
     const [getFileListLoading, setGetFileListLoading] = useState(true);
+    const [showFileUploadModal, setShowFileUploadModal] = useState(false);
+    const [fileUploadLoading, setFileUploadLoading] = useState(false);
     const [filePage, setFilePage] = useState(1);
     const fileTotalPages = Math.ceil(FileData.length / FILE_PAGE_SIZE);
     const filePagedData = FileData.slice((filePage - 1) * FILE_PAGE_SIZE, filePage * FILE_PAGE_SIZE);
@@ -160,6 +163,22 @@ const MainPage = ({ user, onLogout }) => {
             })
             .catch((err) => {
                 setGetFileListLoading(false);
+            });
+    };
+
+    const handleUploadFiles = async (files) => { // 파일 업로드 API 호출
+        setFileUploadLoading(true);
+        UploadFile({userId: user.userId, userPW: user.userPW, files})
+            .then(() => {
+                alert("파일 업로드가 완료되었습니다.");
+                setShowFileUploadModal(false);
+                refreshFileList();
+            })
+            .catch(() => {
+                alert("파일 업로드에 실패하였습니다. 다시 시도해주세요.");
+            })
+            .finally(() => {
+                setFileUploadLoading(false);
             });
     };
 
@@ -385,6 +404,21 @@ const MainPage = ({ user, onLogout }) => {
                 </div>
             )}
 
+            {fileUploadLoading && (
+                <div className="fixed inset-0 flex items-center justify-center z-50">
+                    <div className="bg-white bg-opacity-50 rounded-2xl p-6 flex flex-col items-center gap-4">
+                        <div className='flex flex-col items-center gap-4'>
+                            <div className='flex space-x-2'>
+                                <div className='w-3 h-3 bg-blue-600 rounded-full animate-bounce'></div>
+                                <div className='w-3 h-3 bg-blue-600 rounded-full animate-bounce' style={{animationDelay: '0.1s'}}></div>
+                                <div className='w-3 h-3 bg-blue-600 rounded-full animate-bounce' style={{animationDelay: '0.2s'}}></div>
+                            </div>
+                            <p className='text-xl text-gray-700 font-bold'>파일 업로드 중...</p>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             {/* 다운로드 목록 헤더 */}
             <div className="max-w-7xl mx-auto flex justify-between items-center px-3 mt-8 mb-4">
                 <div className="flex gap-2">
@@ -397,6 +431,15 @@ const MainPage = ({ user, onLogout }) => {
                         <LuRefreshCw size={18} />
                     </button>
                 </div>
+                <button className="bg-blue-600 hover:bg-blue-700 text-white rounded-lg px-4 py-2 text-xs sm:text-sm font-semibold shadow-sm transition" onClick={() => setShowFileUploadModal(true)}>
+                    + 파일 업로드
+                </button>
+                {showFileUploadModal && (
+                    <FileUploadModal 
+                        onClose={() => setShowFileUploadModal(false)}
+                        onSubmit={handleUploadFiles}
+                    />
+                )}
             </div>
 
             {/* 다운로드 목록 테이블 */}
