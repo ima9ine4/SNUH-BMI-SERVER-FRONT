@@ -9,7 +9,7 @@ import { LuRefreshCw } from "react-icons/lu";
 import { getDownloadList } from '../api/downloadApi';
 import { MdOutlineReplay } from "react-icons/md";
 import { FaRegCircleStop } from "react-icons/fa6";
-import ContainerSkeletonRow from '../components/skeleton/ContainerSekeletonRow';
+import ContainerSkeletonRow from '../components/skeleton/ContainerSkeletonRow';
 import { changePassword } from '../api/loginApi';
 
 
