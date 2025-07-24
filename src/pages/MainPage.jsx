@@ -317,16 +317,19 @@ const MainPage = ({ user, onLogout }) => {
                                 )}
                                 </td>
                                 <td className="py-3 px-2 align-middle text-center">
-                                <a
-                                    href={c.address}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="inline-flex items-center gap-1 text-blue-600 hover:text-blue-800 font-medium underline"
-                                    title="접속"
-                                >
-                                    접속
-                                    <FaExternalLinkAlt className="inline-block text-xs mb-0.5" />
-                                </a>
+                                    {c.status === 'Running'
+                                        ? <a
+                                            href={c.address}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="inline-flex items-center gap-1 text-blue-600 hover:text-blue-800 font-medium underline"
+                                            title="접속"
+                                        >
+                                        {c.status === 'Running' ? '접속' : '-'}
+                                        <FaExternalLinkAlt className="inline-block text-xs mb-0.5" />
+                                    </a>
+                                    : <span>-</span>
+                                    }
                                 </td>
                                 {/* <td className="py-3 px-2 align-middle text-center">
                                 <button className="p-1 rounded hover:bg-gray-100 text-gray-500 text-sm" title="로그보기"
