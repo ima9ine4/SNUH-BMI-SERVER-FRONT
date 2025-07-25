@@ -131,12 +131,9 @@ const NewContainerModal = ({ onClose, onSubmit, volumeOptions }) => {
     );
 
     return (
-        <div
-        className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50"
-        onClick={onClose}
-        >
+        <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
             <div
-                className="overflow-y-auto bg-white rounded-2xl px-10 py-8 max-h-[80vh] w-[600px] shadow-lg"
+                className="overflow-y-auto bg-white rounded-xl px-10 py-8 max-h-[80vh] w-[600px] shadow-lg"
                 onClick={(e) => e.stopPropagation()}
             >
                 <h2 className="text-xl font-bold text-blue-700 mb-6">새 도커 컨테이너 생성</h2>

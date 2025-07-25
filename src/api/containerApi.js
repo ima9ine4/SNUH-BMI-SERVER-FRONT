@@ -76,7 +76,6 @@ export const createContainer = ({userId, userPW, formData}) => {
 }
 
 export const getDockerVolume = ({userId, userPW}) => {
-    console.log('getDockerVolume 실행');
     return axios.get(`${BASE_URL}/container_manager`, {
         headers: {
             'accept': 'application/json',
