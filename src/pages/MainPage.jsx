@@ -14,7 +14,7 @@ import { changePassword } from '../api/loginApi';
 import { getFileList } from '../api/FileApi';
 import dayjs from 'dayjs';
 import FileUploadModal from '../components/FileUploadModal';
-import { UploadFile } from '../api/FileApi';
+import { UploadFile, DownloadFile } from '../api/FileApi';
 
 const COMPANY_NAME = 'SNUH BMI LAB SERVER';
 
@@ -52,6 +52,7 @@ const MainPage = ({ user, onLogout }) => {
     const [getFileListLoading, setGetFileListLoading] = useState(true);
     const [showFileUploadModal, setShowFileUploadModal] = useState(false);
     const [fileUploadLoading, setFileUploadLoading] = useState(false);
+    const [fileDownloadLoading, setFileDownloadLoading] = useState(false);
     const [filePage, setFilePage] = useState(1);
     const fileTotalPages = Math.ceil(FileData.length / FILE_PAGE_SIZE);
     const filePagedData = FileData.slice((filePage - 1) * FILE_PAGE_SIZE, filePage * FILE_PAGE_SIZE);
@@ -181,6 +182,36 @@ const MainPage = ({ user, onLogout }) => {
                 setFileUploadLoading(false);
             });
     };
+
+
+    const handleDownloadFile = (fileName) => { // 파일 다운로드 API 호출
+        console.log('fileName:',fileName);
+        setFileDownloadLoading(prev => ({ ...prev, [fileName]: true}));
+        DownloadFile({userId: user.userId, userPW: user.userPW, fileName: fileName})
+        .then((res) => {
+            const blob = new Blob([res.data]);
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            
+            link.href = url;
+            link.download = fileName;
+
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            window.URL.revokeObjectURL(url);
+            
+            alert("파일 다운로드가 완료되었습니다.");
+            setShowFileUploadModal(false);
+        })
+        .catch((err) => {
+            console.log(err);
+            alert("파일 다운로드에 실패하였습니다. 다시 시도해주세요.");
+        })
+        .finally(() => {
+            setFileDownloadLoading(prev => ({ ...prev, [fileName]: false}));
+        });
+    }
 
     const handleChangePassword = (new_password) => {  // 비밀번호 변경 API 호출
         changePassword({userId: user.userId, userPW: user.userPW, new_password})
@@ -487,14 +518,27 @@ const MainPage = ({ user, onLogout }) => {
                                         : '-'}
                                 </td>
                                 <td className="py-3 px-2 align-middle text-center">
-                                    {c.download_allowed ? (
-                                    <button className="p-1 rounded hover:bg-gray-100 text-gray-500 text-sm" title="다운로드"
-                                        onClick={() => alert(`${c.name} 다운로드`)}>
-                                        <BsDownload />
-                                    </button>
-                                    ) : (
-                                    <span className="text-gray-400">-</span>
-                                    )}
+                                    {!c.download_allowed ? (
+                                        <span className="text-gray-400">-</span>
+                                    ) 
+                                        : !fileDownloadLoading[c.name] ? (
+                                            <button className="p-1 rounded hover:bg-gray-100 text-gray-500 text-sm" title="다운로드"
+                                            onClick={() => {
+                                                alert(`${c.name} 파일을 다운로드하시겠습니까?`);
+                                                handleDownloadFile(c.name);
+                                            }}>
+                                            <BsDownload />
+                                        </button>
+                                        )
+                                            : 
+                                            <div className="flex items-center justify-center h-6">
+                                                <div className='flex space-x-1'>
+                                                    <div className='w-1 h-1 bg-gray-400 rounded-full animate-bounce'></div>
+                                                    <div className='w-1 h-1 bg-gray-400 rounded-full animate-bounce' style={{animationDelay: '0.1s'}}></div>
+                                                    <div className='w-1 h-1 bg-gray-400 rounded-full animate-bounce' style={{animationDelay: '0.2s'}}></div>
+                                                </div>
+                                            </div>
+                                    }
                                 </td>
                             </tr>
                         ))}

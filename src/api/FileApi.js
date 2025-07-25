@@ -34,4 +34,19 @@ export const UploadFile = ({ userId, userPW, files }) => {
             }
         )
 }
+
+export const DownloadFile = ({ userId, userPW, fileName}) => {
+    return axios.get(`${BASE_URL}/file_io/download_file`, {
+        responseType: 'blob',
+        params: { fileName },
+        headers: {
+            'accept': 'application/json',
+            'userID': userId,
+            'userPW': userPW
+            }
+        })
+        .catch(error => {
+            console.log(error.response);
+            }
+        )
 }
