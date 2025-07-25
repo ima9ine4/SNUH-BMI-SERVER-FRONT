@@ -1,7 +1,4 @@
 import axios from 'axios';
-import containerDummyData from '../data/dummyContainerData.json';
-import dockerVolumeDummyData from '../data/dummyDockerVolumeData.json'
-
 const BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
 // 컨테이너 목록 조회 API 호출
@@ -20,7 +17,6 @@ export const getContainerList = ({userId, userPW}) => {
 }
 
 export const startContainer = ({userId, userPW, serverName}) => {
-    console.log(`Start Container: ${serverName}`);
     return axios.get(`${BASE_URL}/container_manager/restart`, {
         params: { serverName },
         headers: {
@@ -32,7 +28,6 @@ export const startContainer = ({userId, userPW, serverName}) => {
 }
 
 export const stopContainer = ({userId, userPW, serverName}) => {
-    console.log(`Stop Container: ${serverName}`);
      return axios.get(`${BASE_URL}/container_manager/stop`, {
         params: { serverName },
         headers: {
@@ -52,7 +47,6 @@ export const stopContainer = ({userId, userPW, serverName}) => {
 // }
 
 export const deleteContainer = ({userId, userPW, serverName}) => {
-    console.log(`Delete Container: ${serverName}`);
     return axios.delete(`${BASE_URL}/container_manager`, {
         params: { serverName },
         headers: {

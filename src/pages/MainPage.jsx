@@ -119,10 +119,10 @@ const MainPage = ({ user, onLogout }) => {
 
                 deleteContainer({userId: user.userId, userPW: user.userPW, serverName: name})
                 .then(() => {
-                    console.log("삭제 완료");
+                    console.log("정상적으로 삭제되었습니다.");
                 })
                 .catch((err) => {
-                    alert("삭제에 실패하였습니다.");
+                    alert("삭제에 실패하였습니다. 다시 시도해주세요.");
                     console.error("Delete error", err);
                     setContainerData(backup);
                 });
@@ -183,9 +183,7 @@ const MainPage = ({ user, onLogout }) => {
             });
     };
 
-
     const handleDownloadFile = (fileName) => { // 파일 다운로드 API 호출
-        console.log('fileName:',fileName);
         setFileDownloadLoading(prev => ({ ...prev, [fileName]: true}));
         DownloadFile({userId: user.userId, userPW: user.userPW, fileName: fileName})
         .then((res) => {
@@ -204,7 +202,6 @@ const MainPage = ({ user, onLogout }) => {
             setShowFileUploadModal(false);
         })
         .catch((err) => {
-            console.log(err);
             alert("파일 다운로드에 실패하였습니다. 다시 시도해주세요.");
         })
         .finally(() => {
@@ -234,9 +231,9 @@ const MainPage = ({ user, onLogout }) => {
             }
         })
         .catch((err) => {
-            console.log("도커 볼륨 로딩 실패", err);
+            alert('사용자가 연결 가능한 도커 볼륨을 조회하는데 실패했습니다. 다시 시도해주세요.')
         })
-    }, [user.userId, user.userPW]);
+    }, []);
 
     useEffect(() => {
         function handleClickOutside(event) {
@@ -449,13 +446,13 @@ const MainPage = ({ user, onLogout }) => {
                 </div>
             )}
 
-            {/* 다운로드 목록 헤더 */}
-            <div className="max-w-7xl mx-auto flex justify-between items-center px-3 mt-8 mb-4">
+            {/* 파일 목록 헤더 */}
+            <div className="max-w-7xl mx-auto flex justify-between items-center px-3 mt-16 mb-4">
                 <div className="flex gap-2">
                     <span className="text-3xl font-semibold text-gray-800 mb-2">파일 목록</span>
                     <button
                         className="p-2 rounded-full hover:bg-gray-100 text-gray-400 mb-2"
-                        title="파일 다운로드 목록 새로고침"
+                        title="파일 목록 새로고침"
                         onClick={refreshFileList}
                     >
                         <LuRefreshCw size={18} />
