@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { FaChevronDown, FaExternalLinkAlt } from 'react-icons/fa';
 import { FiFileText, FiTrash2 } from 'react-icons/fi';
-import {getContainerList, startContainer, stopContainer, fetchLogs, deleteContainer, createContainer, getDockerVolume} from '../api/containerApi';
+import {getContainerList, startContainer, stopContainer, deleteContainer, createContainer, getDockerVolume, getAllDockerVolumeList} from '../api/containerApi';
 import NewContainerModal from '../components/NewContainerModal'
 import PasswordChangeModal from '../components/PasswordChangeModal'
 import { BsDownload } from 'react-icons/bs';
@@ -15,11 +15,12 @@ import { getFileList } from '../api/FileApi';
 import dayjs from 'dayjs';
 import FileUploadModal from '../components/FileUploadModal';
 import { UploadFile, DownloadFile } from '../api/FileApi';
+import DockerVolumeSkeletonRow from '../components/skeleton/DockerVolumeSkeleton';
 
 const COMPANY_NAME = 'SNUH BMI LAB SERVER';
 
-const PAGE_SIZE = 4;
-const FILE_PAGE_SIZE = 4;
+const PAGE_SIZE = 5;
+const FILE_PAGE_SIZE = 5;
 
 function mapApiContainer(apiObj) { // api response의 원본 json 배열을 가공하여 저장
     return {
@@ -56,6 +57,11 @@ const MainPage = ({ user, onLogout }) => {
     const [filePage, setFilePage] = useState(1);
     const fileTotalPages = Math.ceil(FileData.length / FILE_PAGE_SIZE);
     const filePagedData = FileData.slice((filePage - 1) * FILE_PAGE_SIZE, filePage * FILE_PAGE_SIZE);
+
+    const [dockerVolumeListloading, setDockerVolumeListLoading] = useState(true);
+    const [dockerVolumeData, setDockerVolumeData] = useState([]);
+    const [hoveredVolume, setHoveredVolume] = useState(null);
+    const [searchKeyword, setSearchKeyword] = useState("");
 
     // 컨테이너 목록 새로고침 함수
     const refreshContainerList = () => {
@@ -103,14 +109,6 @@ const MainPage = ({ user, onLogout }) => {
             });
     }
 
-    // const handleLogs = (name) => { // 컨테이너 로그 조회 API 호출
-    //     fetchLogs({userId: user.userId, userPW: user.userPW, serverName: name})
-    //         .then(res => {
-    //             alert(`로그 ${res.data.logs}`);
-    //         })
-    //         .catch(err => console.error("Logs error", err));
-    // }
-
     const handleDelete = (name) => { // 컨테이너 삭제 API 호출
         if (window.confirm(`${name} 컨테이너를 삭제하시겠습니까?`)){
             setContainerData((prev) => {
@@ -119,10 +117,10 @@ const MainPage = ({ user, onLogout }) => {
 
                 deleteContainer({userId: user.userId, userPW: user.userPW, serverName: name})
                 .then(() => {
-                    console.log("삭제 완료");
+                    console.log("정상적으로 삭제되었습니다.");
                 })
                 .catch((err) => {
-                    alert("삭제에 실패하였습니다.");
+                    alert("삭제에 실패하였습니다. 다시 시도해주세요.");
                     console.error("Delete error", err);
                     setContainerData(backup);
                 });
@@ -183,9 +181,7 @@ const MainPage = ({ user, onLogout }) => {
             });
     };
 
-
     const handleDownloadFile = (fileName) => { // 파일 다운로드 API 호출
-        console.log('fileName:',fileName);
         setFileDownloadLoading(prev => ({ ...prev, [fileName]: true}));
         DownloadFile({userId: user.userId, userPW: user.userPW, fileName: fileName})
         .then((res) => {
@@ -204,13 +200,53 @@ const MainPage = ({ user, onLogout }) => {
             setShowFileUploadModal(false);
         })
         .catch((err) => {
-            console.log(err);
             alert("파일 다운로드에 실패하였습니다. 다시 시도해주세요.");
         })
         .finally(() => {
             setFileDownloadLoading(prev => ({ ...prev, [fileName]: false}));
         });
     }
+
+    // 도커 볼륨 목록 새로고침 함수
+    const refreshDockerVolumeList = () => {
+        setDockerVolumeListLoading(true);
+        getAllDockerVolumeList()
+            .then((res) => {
+                const data = res.data;
+                setDockerVolumeData(data);
+                setDockerVolumeListLoading(false);
+            })
+            .catch((err) => {
+                setDockerVolumeListLoading(false);
+            });
+    };
+
+    // 도커 볼륨 혹은 사용자 검색 함수
+    const filteredVolumeData = Object.entries(dockerVolumeData).filter(
+        ([volumeName, info]) => {
+            const keyword = searchKeyword.toLowerCase();
+            const matchesVolume = volumeName.toLowerCase().includes(keyword);
+            const matchesUser = info.users.some((user) => 
+                user.toLowerCase().includes(keyword)
+            );
+            return matchesVolume || matchesUser;
+        }
+    )
+    
+    // 검색한 키워드 하이라이트 함수
+    const highlightText = (text, keyword) => {
+        if (!keyword) return text;
+        const regex = new RegExp(`(${keyword})`, 'gi');
+        return text.split(regex).map((part, i) => 
+            part.toLowerCase() === keyword.toLowerCase() ? (
+                <mark key={i} className='bg-yellow-200 text-black rounded'>
+                    {part}
+                </mark>
+            ) : (
+                part
+            )
+        );
+    };
 
     const handleChangePassword = (new_password) => {  // 비밀번호 변경 API 호출
         changePassword({userId: user.userId, userPW: user.userPW, new_password})
@@ -228,15 +264,16 @@ const MainPage = ({ user, onLogout }) => {
     useEffect(() => {
         refreshContainerList();
         refreshFileList();
+        refreshDockerVolumeList();
         getDockerVolume({userId: user.userId, userPW: user.userPW}).then((response) => {
             if(response.data.status_code !== 404){ // 도커 볼륨이 있을 때만
                 setAvailableVolumes(response.data );
             }
         })
         .catch((err) => {
-            console.log("도커 볼륨 로딩 실패", err);
+            alert('사용자가 연결 가능한 도커 볼륨을 조회하는데 실패했습니다. 다시 시도해주세요.')
         })
-    }, [user.userId, user.userPW]);
+    }, []);
 
     useEffect(() => {
         function handleClickOutside(event) {
@@ -337,9 +374,9 @@ const MainPage = ({ user, onLogout }) => {
                 </thead>
                 <tbody>
                     {loading
-                        ? Array.from({ length: 4 }).map((_, idx) => <ContainerSkeletonRow key={idx} />)
+                        ? Array.from({ length: 5 }).map((_, idx) => <ContainerSkeletonRow key={idx} />)
                         : pagedData.map((c) => (
-                            <tr key={c.id} className="group border-b border-gray-100 last:border-0 hover:bg-blue-50/60 transition">
+                            <tr key={c.name} className="group border-b border-gray-100 last:border-0 hover:bg-blue-50/60 transition">
                                 <td className="py-3 px-2 align-middle text-center font-semibold text-gray-700 truncate">{c.name}</td>
                                 <td className="py-3 px-2 align-middle text-center text-gray-700 truncate">{c.image}</td>
                                 <td className="py-3 px-2 align-middle text-center text-gray-700">{c.cpu}</td>
@@ -394,12 +431,6 @@ const MainPage = ({ user, onLogout }) => {
                                     : <span>-</span>
                                     }
                                 </td>
-                                {/* <td className="py-3 px-2 align-middle text-center">
-                                <button className="p-1 rounded hover:bg-gray-100 text-gray-500 text-sm" title="로그보기"
-                                    onClick={() => handleLogs(c.name)}>
-                                    <FiFileText />
-                                </button>
-                                </td> */}
                                 <td className="py-3 px-2 align-middle text-center">
                                 <button className="p-1 rounded hover:bg-gray-100 text-gray-500 text-sm" title="삭제"
                                     onClick={() => handleDelete(c.name)}>
@@ -449,13 +480,13 @@ const MainPage = ({ user, onLogout }) => {
                 </div>
             )}
 
-            {/* 다운로드 목록 헤더 */}
-            <div className="max-w-7xl mx-auto flex justify-between items-center px-3 mt-8 mb-4">
+            {/* 파일 목록 헤더 */}
+            <div className="max-w-7xl mx-auto flex justify-between items-center px-3 mt-16 mb-4">
                 <div className="flex gap-2">
                     <span className="text-3xl font-semibold text-gray-800 mb-2">파일 목록</span>
                     <button
                         className="p-2 rounded-full hover:bg-gray-100 text-gray-400 mb-2"
-                        title="파일 다운로드 목록 새로고침"
+                        title="파일 목록 새로고침"
                         onClick={refreshFileList}
                     >
                         <LuRefreshCw size={18} />
@@ -493,9 +524,9 @@ const MainPage = ({ user, onLogout }) => {
                 </thead>
                 <tbody>
                     { getFileListLoading
-                        ? Array.from({ length: 4 }).map((_, idx) => <FileListSkeletonRow key={idx} />)
-                        : filePagedData.map((c) => (
-                            <tr key={c.id} className="group border-b border-gray-100 last:border-0 hover:bg-blue-50/60 transition">
+                        ? Array.from({ length: 5 }).map((_, idx) => <FileListSkeletonRow key={idx} />)
+                        : filePagedData.map((c, index) => (
+                            <tr key={index} className="group border-b border-gray-100 last:border-0 hover:bg-blue-50/60 transition">
                                 <td className="py-3 px-2 align-middle text-center text-gray-700 truncate">{c.upload_date}</td>
                                 <td className="py-3 px-2 align-middle text-center font-semibold text-gray-700 truncate">{c.name}</td>
                                 <td className="py-3 px-2 align-middle text-center">
@@ -549,6 +580,75 @@ const MainPage = ({ user, onLogout }) => {
                     <span className="text-gray-700 text-xs sm:text-sm">{filePage} / {fileTotalPages}</span>
                     <button onClick={() => setFilePage(filePage + 1)} disabled={filePage === fileTotalPages} className="px-3 py-1 rounded bg-gray-100 text-gray-500 disabled:opacity-50 disabled:cursor-not-allowed">&gt;</button>
                 </div>
+            </div>
+
+            <div className="max-w-7xl mx-auto flex justify-between items-center px-3 mt-16 mb-4">
+                <div className="flex gap-2">
+                    <span className="text-3xl font-semibold text-gray-800 mb-2">도커 볼륨 목록</span>
+                    <button
+                        className="p-2 rounded-full hover:bg-gray-100 text-gray-400 mb-2"
+                        title="도커 볼륨 목록 새로고침"
+                        onClick={refreshDockerVolumeList}
+                    >
+                        <LuRefreshCw size={18} />
+                    </button>
+                </div>
+                <div className='flex'>
+                    <input
+                        type='text'
+                        placeholder='볼륨/사용자 검색'
+                        value={searchKeyword}
+                        onChange={(e) => setSearchKeyword(e.target.value)}
+                        className='border border-gray-300 px-3 py-1 rounded max-w-lg hover:border-gray-400 focus:border-gray-900 outline-none'
+                    />
+                </div>
+            </div>
+
+            {/* 도커 볼륨 목록 테이블 */}
+            <div className="max-w-7xl mx-auto bg-white rounded-xl shadow-md border border-gray-200 mb-10 overflow-x-auto">
+                <table className="w-full min-w-[900px] text-xs sm:text-sm table-fixed">
+                <colgroup>
+                    <col className="w-36" />
+                    <col className="w-10" />
+                    <col className="w-20" />
+                </colgroup>
+                <thead>
+                    <tr className="bg-gray-50 text-gray-700 border-b border-gray-200">
+                        <th className="py-3 px-2 font-semibold text-xs tracking-wide">볼륨 이름</th>
+                        <th className="py-3 px-2 font-semibold text-xs tracking-wide">권한</th>
+                        <th className="py-3 px-2 font-semibold text-xs tracking-wide">사용자</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    { dockerVolumeListloading
+                        ? Array.from({ length: 5 }).map((_, idx) => <DockerVolumeSkeletonRow key={idx} />)
+                        : filteredVolumeData.map(([volumeName, info]) => (
+                            info.users.map((user, idx) => (
+                                <tr key={`${volumeName}-${user}`}
+                                    onMouseEnter={() => setHoveredVolume(volumeName)}
+                                    onMouseLeave={() => setHoveredVolume(null)}
+                                    className={`group border-b border-gray-00 last:border-0 ${hoveredVolume === volumeName ? 'bg-blue-50 transition-all' : ''}`}>
+                                    {idx === 0 && (
+                                        <>
+                                            <td rowSpan={info.users.length} className="border-r border-gray-200 py-3 px-2 align-middle text-center text-gray-700 font-semibold truncate">{highlightText(volumeName, searchKeyword)}</td>
+                                            <td rowSpan={info.users.length} className="border-r border-gray-200 py-3 px-2 align-middle text-center text-gray-700 truncate">
+                                                <span
+                                                    className={`inline-block px-2.5 py-1 rounded-full text-xs font-semibold border
+                                                        ${info.readwrite === 1 ? 'bg-green-50 text-green-700 border-green-200' : 'bg-yellow-50 text-yellow-700 border-yellow-200'}`}
+                                                >
+                                                    {info.readwrite
+                                                        ? "readwrite"
+                                                        :"readonly"}
+                                                </span>
+                                            </td>
+                                        </>
+                                    )}
+                                    <td className="py-3 px-2 align-middle text-center font-semibold text-gray-700 truncate">{highlightText(user, searchKeyword)}</td>
+                                </tr>
+                            ))
+                        ))}
+                </tbody>
+                </table>
             </div>
         </div>
     );

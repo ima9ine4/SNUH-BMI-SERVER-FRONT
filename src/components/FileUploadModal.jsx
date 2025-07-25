@@ -6,7 +6,6 @@ const FileUploadModal = ({ onClose, onSubmit, user }) => {
     const [ files, setFiles ] = useState([]);
 
     const onDrop = useCallback((acceptedFiles) => {
-        console.log("받은 파일들: ", acceptedFiles);
         setFiles((prev) => {
             const newFileNames = new Set(prev.map((f) => f.name));
             const uniqueFiles = acceptedFiles.filter((f) => !newFileNames.has(f.name));
