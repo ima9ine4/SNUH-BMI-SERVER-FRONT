@@ -376,7 +376,7 @@ const MainPage = ({ user, onLogout }) => {
                     {loading
                         ? Array.from({ length: 5 }).map((_, idx) => <ContainerSkeletonRow key={idx} />)
                         : pagedData.map((c) => (
-                            <tr key={c.id} className="group border-b border-gray-100 last:border-0 hover:bg-blue-50/60 transition">
+                            <tr key={c.name} className="group border-b border-gray-100 last:border-0 hover:bg-blue-50/60 transition">
                                 <td className="py-3 px-2 align-middle text-center font-semibold text-gray-700 truncate">{c.name}</td>
                                 <td className="py-3 px-2 align-middle text-center text-gray-700 truncate">{c.image}</td>
                                 <td className="py-3 px-2 align-middle text-center text-gray-700">{c.cpu}</td>
@@ -525,8 +525,8 @@ const MainPage = ({ user, onLogout }) => {
                 <tbody>
                     { getFileListLoading
                         ? Array.from({ length: 5 }).map((_, idx) => <FileListSkeletonRow key={idx} />)
-                        : filePagedData.map((c) => (
-                            <tr key={c.id} className="group border-b border-gray-100 last:border-0 hover:bg-blue-50/60 transition">
+                        : filePagedData.map((c, index) => (
+                            <tr key={index} className="group border-b border-gray-100 last:border-0 hover:bg-blue-50/60 transition">
                                 <td className="py-3 px-2 align-middle text-center text-gray-700 truncate">{c.upload_date}</td>
                                 <td className="py-3 px-2 align-middle text-center font-semibold text-gray-700 truncate">{c.name}</td>
                                 <td className="py-3 px-2 align-middle text-center">
