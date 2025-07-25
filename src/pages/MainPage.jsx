@@ -201,7 +201,6 @@ const MainPage = ({ user, onLogout }) => {
             link.remove();
             window.URL.revokeObjectURL(url);
             
-            alert("파일 다운로드가 완료되었습니다.");
             setShowFileUploadModal(false);
         })
         .catch((err) => {
