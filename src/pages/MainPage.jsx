@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { FaChevronDown, FaExternalLinkAlt } from 'react-icons/fa';
 import { FiFileText, FiTrash2 } from 'react-icons/fi';
-import {getContainerList, startContainer, stopContainer, fetchLogs, deleteContainer, createContainer, getDockerVolume} from '../api/containerApi';
+import {getContainerList, startContainer, stopContainer, deleteContainer, createContainer, getDockerVolume, getAllDockerVolumeList} from '../api/containerApi';
 import NewContainerModal from '../components/NewContainerModal'
 import PasswordChangeModal from '../components/PasswordChangeModal'
 import { BsDownload } from 'react-icons/bs';
@@ -15,6 +15,7 @@ import { getFileList } from '../api/FileApi';
 import dayjs from 'dayjs';
 import FileUploadModal from '../components/FileUploadModal';
 import { UploadFile, DownloadFile } from '../api/FileApi';
+import DockerVolumeSkeletonRow from '../components/skeleton/DockerVolumeSkeleton';
 
 const COMPANY_NAME = 'SNUH BMI LAB SERVER';
 
@@ -56,6 +57,11 @@ const MainPage = ({ user, onLogout }) => {
     const [filePage, setFilePage] = useState(1);
     const fileTotalPages = Math.ceil(FileData.length / FILE_PAGE_SIZE);
     const filePagedData = FileData.slice((filePage - 1) * FILE_PAGE_SIZE, filePage * FILE_PAGE_SIZE);
+
+    const [dockerVolumeListloading, setDockerVolumeListLoading] = useState(true);
+    const [dockerVolumeData, setDockerVolumeData] = useState([]);
+    const [hoveredVolume, setHoveredVolume] = useState(null);
+    const [searchKeyword, setSearchKeyword] = useState("");
 
     // 컨테이너 목록 새로고침 함수
     const refreshContainerList = () => {
@@ -209,6 +215,47 @@ const MainPage = ({ user, onLogout }) => {
         });
     }
 
+    // 도커 볼륨 목록 새로고침 함수
+    const refreshDockerVolumeList = () => {
+        setDockerVolumeListLoading(true);
+        getAllDockerVolumeList()
+            .then((res) => {
+                const data = res.data;
+                setDockerVolumeData(data);
+                setDockerVolumeListLoading(false);
+            })
+            .catch((err) => {
+                setDockerVolumeListLoading(false);
+            });
+    };
+
+    // 도커 볼륨 혹은 사용자 검색 함수
+    const filteredVolumeData = Object.entries(dockerVolumeData).filter(
+        ([volumeName, info]) => {
+            const keyword = searchKeyword.toLowerCase();
+            const matchesVolume = volumeName.toLowerCase().includes(keyword);
+            const matchesUser = info.users.some((user) => 
+                user.toLowerCase().includes(keyword)
+            );
+            return matchesVolume || matchesUser;
+        }
+    )
+    
+    // 검색한 키워드 하이라이트 함수
+    const highlightText = (text, keyword) => {
+        if (!keyword) return text;
+        const regex = new RegExp(`(${keyword})`, 'gi');
+        return text.split(regex).map((part, i) => 
+            part.toLowerCase() === keyword.toLowerCase() ? (
+                <mark key={i} className='bg-yellow-200 text-black rounded'>
+                    {part}
+                </mark>
+            ) : (
+                part
+            )
+        );
+    };
+
     const handleChangePassword = (new_password) => {  // 비밀번호 변경 API 호출
         changePassword({userId: user.userId, userPW: user.userPW, new_password})
             .then(() => {
@@ -225,6 +272,7 @@ const MainPage = ({ user, onLogout }) => {
     useEffect(() => {
         refreshContainerList();
         refreshFileList();
+        refreshDockerVolumeList();
         getDockerVolume({userId: user.userId, userPW: user.userPW}).then((response) => {
             if(response.data.status_code !== 404){ // 도커 볼륨이 있을 때만
                 setAvailableVolumes(response.data );
@@ -546,6 +594,75 @@ const MainPage = ({ user, onLogout }) => {
                     <span className="text-gray-700 text-xs sm:text-sm">{filePage} / {fileTotalPages}</span>
                     <button onClick={() => setFilePage(filePage + 1)} disabled={filePage === fileTotalPages} className="px-3 py-1 rounded bg-gray-100 text-gray-500 disabled:opacity-50 disabled:cursor-not-allowed">&gt;</button>
                 </div>
+            </div>
+
+            <div className="max-w-7xl mx-auto flex justify-between items-center px-3 mt-16 mb-4">
+                <div className="flex gap-2">
+                    <span className="text-3xl font-semibold text-gray-800 mb-2">도커 볼륨 목록</span>
+                    <button
+                        className="p-2 rounded-full hover:bg-gray-100 text-gray-400 mb-2"
+                        title="도커 볼륨 목록 새로고침"
+                        onClick={refreshDockerVolumeList}
+                    >
+                        <LuRefreshCw size={18} />
+                    </button>
+                </div>
+                <div className='flex'>
+                    <input
+                        type='text'
+                        placeholder='볼륨/사용자 검색'
+                        value={searchKeyword}
+                        onChange={(e) => setSearchKeyword(e.target.value)}
+                        className='border border-gray-300 px-3 py-1 rounded max-w-lg hover:border-gray-400 focus:border-gray-900 outline-none'
+                    />
+                </div>
+            </div>
+
+            {/* 도커 볼륨 목록 테이블 */}
+            <div className="max-w-7xl mx-auto bg-white rounded-xl shadow-md border border-gray-200 mb-10 overflow-x-auto">
+                <table className="w-full min-w-[900px] text-xs sm:text-sm table-fixed">
+                <colgroup>
+                    <col className="w-36" />
+                    <col className="w-10" />
+                    <col className="w-20" />
+                </colgroup>
+                <thead>
+                    <tr className="bg-gray-50 text-gray-700 border-b border-gray-200">
+                        <th className="py-3 px-2 font-semibold text-xs tracking-wide">볼륨 이름</th>
+                        <th className="py-3 px-2 font-semibold text-xs tracking-wide">권한</th>
+                        <th className="py-3 px-2 font-semibold text-xs tracking-wide">사용자</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    { dockerVolumeListloading
+                        ? Array.from({ length: 5 }).map((_, idx) => <DockerVolumeSkeletonRow key={idx} />)
+                        : filteredVolumeData.map(([volumeName, info]) => (
+                            info.users.map((user, idx) => (
+                                <tr key={`${volumeName}-${user}`}
+                                    onMouseEnter={() => setHoveredVolume(volumeName)}
+                                    onMouseLeave={() => setHoveredVolume(null)}
+                                    className={`group border-b border-gray-00 last:border-0 ${hoveredVolume === volumeName ? 'bg-blue-50 transition-all' : ''}`}>
+                                    {idx === 0 && (
+                                        <>
+                                            <td rowSpan={info.users.length} className="border-r border-gray-200 py-3 px-2 align-middle text-center text-gray-700 font-semibold truncate">{highlightText(volumeName, searchKeyword)}</td>
+                                            <td rowSpan={info.users.length} className="border-r border-gray-200 py-3 px-2 align-middle text-center text-gray-700 truncate">
+                                                <span
+                                                    className={`inline-block px-2.5 py-1 rounded-full text-xs font-semibold border
+                                                        ${info.readwrite === 1 ? 'bg-green-50 text-green-700 border-green-200' : 'bg-yellow-50 text-yellow-700 border-yellow-200'}`}
+                                                >
+                                                    {info.readwrite
+                                                        ? "readwrite"
+                                                        :"readonly"}
+                                                </span>
+                                            </td>
+                                        </>
+                                    )}
+                                    <td className="py-3 px-2 align-middle text-center font-semibold text-gray-700 truncate">{highlightText(user, searchKeyword)}</td>
+                                </tr>
+                            ))
+                        ))}
+                </tbody>
+                </table>
             </div>
         </div>
     );

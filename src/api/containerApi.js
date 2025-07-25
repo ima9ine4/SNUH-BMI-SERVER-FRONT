@@ -82,3 +82,15 @@ export const getDockerVolume = ({userId, userPW}) => {
         }
     )
 }
+
+export const getAllDockerVolumeList = () => {
+    return axios.get(`${BASE_URL}/container_manager/volumes`, {
+        headers: {
+            'accept': 'application/json'
+        }
+    })
+    .catch(error => {
+        console.log(error.response.data.errors);
+        }
+    )
+}
