@@ -38,14 +38,6 @@ export const stopContainer = ({userId, userPW, serverName}) => {
     })
 }
 
-// export const fetchLogs = ({userId, userPW, serverName}) => {
-//     console.log(`Stop Container: ${serverName}`);
-//     return Promise.resolve({logs: `${serverName} 로그 내용`});
-//     //     return axios.get(`${BASE_URL}/api/`, {
-//     //     params: { userId, userPW, serverName}
-//     // })
-// }
-
 export const deleteContainer = ({userId, userPW, serverName}) => {
     return axios.delete(`${BASE_URL}/container_manager`, {
         params: { serverName },
