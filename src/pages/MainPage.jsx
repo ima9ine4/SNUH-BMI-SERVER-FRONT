@@ -18,8 +18,8 @@ import { UploadFile, DownloadFile } from '../api/FileApi';
 
 const COMPANY_NAME = 'SNUH BMI LAB SERVER';
 
-const PAGE_SIZE = 4;
-const FILE_PAGE_SIZE = 4;
+const PAGE_SIZE = 5;
+const FILE_PAGE_SIZE = 5;
 
 function mapApiContainer(apiObj) { // api response의 원본 json 배열을 가공하여 저장
     return {
@@ -337,7 +337,7 @@ const MainPage = ({ user, onLogout }) => {
                 </thead>
                 <tbody>
                     {loading
-                        ? Array.from({ length: 4 }).map((_, idx) => <ContainerSkeletonRow key={idx} />)
+                        ? Array.from({ length: 5 }).map((_, idx) => <ContainerSkeletonRow key={idx} />)
                         : pagedData.map((c) => (
                             <tr key={c.id} className="group border-b border-gray-100 last:border-0 hover:bg-blue-50/60 transition">
                                 <td className="py-3 px-2 align-middle text-center font-semibold text-gray-700 truncate">{c.name}</td>
@@ -493,7 +493,7 @@ const MainPage = ({ user, onLogout }) => {
                 </thead>
                 <tbody>
                     { getFileListLoading
-                        ? Array.from({ length: 4 }).map((_, idx) => <FileListSkeletonRow key={idx} />)
+                        ? Array.from({ length: 5 }).map((_, idx) => <FileListSkeletonRow key={idx} />)
                         : filePagedData.map((c) => (
                             <tr key={c.id} className="group border-b border-gray-100 last:border-0 hover:bg-blue-50/60 transition">
                                 <td className="py-3 px-2 align-middle text-center text-gray-700 truncate">{c.upload_date}</td>
