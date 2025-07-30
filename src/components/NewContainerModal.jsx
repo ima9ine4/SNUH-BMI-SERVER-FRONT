@@ -159,7 +159,7 @@ const NewContainerModal = ({ onClose, onSubmit, volumeOptions }) => {
                         value={form.serverName}
                         onChange={handleChange}
                         className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        placeholder="예: hyejinlim_test"
+                        placeholder="예: sayang_test"
                     />
 
                     <label className="block text-sm font-medium text-gray-700">
@@ -178,7 +178,7 @@ const NewContainerModal = ({ onClose, onSubmit, volumeOptions }) => {
 
                     <label className="block text-sm font-medium text-gray-700">
                         메모리 (GB) <span className="text-red-500">*</span>
-                        <Info message="컨테이너 메모리 크기(GB)를 입력하세요. 최댓값은 입니다." />
+                        <Info message="컨테이너 메모리 크기(GB)를 입력하세요. 최댓값은 512입니다." />
                     </label>
                     <input
                         type="number"
