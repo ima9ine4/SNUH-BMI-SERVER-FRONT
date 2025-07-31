@@ -465,21 +465,6 @@ const MainPage = ({ user, onLogout }) => {
                 </div>
             )}
 
-            {fileUploadLoading && (
-                <div className="fixed inset-0 flex items-center justify-center z-50">
-                    <div className="bg-white bg-opacity-50 rounded-2xl p-6 flex flex-col items-center gap-4">
-                        <div className='flex flex-col items-center gap-4'>
-                            <div className='flex space-x-2'>
-                                <div className='w-3 h-3 bg-blue-600 rounded-full animate-bounce'></div>
-                                <div className='w-3 h-3 bg-blue-600 rounded-full animate-bounce' style={{animationDelay: '0.1s'}}></div>
-                                <div className='w-3 h-3 bg-blue-600 rounded-full animate-bounce' style={{animationDelay: '0.2s'}}></div>
-                            </div>
-                            <p className='text-xl text-gray-700 font-bold'>파일 업로드 중...</p>
-                        </div>
-                    </div>
-                </div>
-            )}
-
             {/* 파일 목록 헤더 */}
             <div className="max-w-7xl mx-auto flex justify-between items-center px-3 mt-16 mb-4">
                 <div className="flex gap-2">
@@ -501,6 +486,20 @@ const MainPage = ({ user, onLogout }) => {
                         onSubmit={handleUploadFiles}
                     />
                 )}
+                {fileUploadLoading && (
+                <div className="fixed inset-0 flex items-center justify-center z-50">
+                    <div className="bg-white bg-opacity-50 rounded-2xl p-6 flex flex-col items-center gap-4">
+                        <div className='flex flex-col items-center gap-4'>
+                            <div className='flex space-x-2'>
+                                <div className='w-3 h-3 bg-blue-600 rounded-full animate-bounce'></div>
+                                <div className='w-3 h-3 bg-blue-600 rounded-full animate-bounce' style={{animationDelay: '0.1s'}}></div>
+                                <div className='w-3 h-3 bg-blue-600 rounded-full animate-bounce' style={{animationDelay: '0.2s'}}></div>
+                            </div>
+                            <p className='text-xl text-gray-700 font-bold'>파일 업로드 중...</p>
+                        </div>
+                    </div>
+                </div>
+            )}
             </div>
 
             {/* 다운로드 목록 테이블 */}
