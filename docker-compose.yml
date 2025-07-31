@@ -1,0 +1,13 @@
+version: '3.8'
+
+services:
+  frontend: 
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "9999:3000"
+    container_name: bmi-server-frontend
+    volumes:
+      - .:/app
+    env_file: .env
