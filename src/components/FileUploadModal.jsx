@@ -1,8 +1,7 @@
 import React, {useCallback, useState} from "react";
 import { useDropzone } from "react-dropzone"
 
-const FileUploadModal = ({ onClose, onSubmit, user }) => {
-    // const [ error, setError ] = useState("");
+const FileUploadModal = ({ onClose, onSubmit }) => {
     const [ files, setFiles ] = useState([]);
 
     const onDrop = useCallback((acceptedFiles) => {
@@ -85,6 +84,7 @@ const FileUploadModal = ({ onClose, onSubmit, user }) => {
             </div>
         </div>
     );
+    
 };
 
 export default FileUploadModal;
