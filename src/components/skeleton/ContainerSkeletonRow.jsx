@@ -1,5 +1,3 @@
-import React from 'react';
-
 const ContainerSkeletonRow = () => (
     <tr className="animate-pulse">
         {Array.from({ length: 10}).map((__dirname, idx) => (
