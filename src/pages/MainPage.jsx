@@ -146,7 +146,7 @@ const MainPage = ({ user, onLogout }) => {
             });
     };
 
-    // 파일 목록 새로고침 함수
+    // 파일 업로드/다운로드 새로고침 함수
     const refreshFileList = () => {
         setGetFileListLoading(true);
         getFileList({userId: user.userId, userPW: user.userPW})
@@ -465,13 +465,13 @@ const MainPage = ({ user, onLogout }) => {
                 </div>
             )}
 
-            {/* 파일 목록 헤더 */}
+            {/* 파일 업로드/다운로드 헤더 */}
             <div className="max-w-7xl mx-auto flex justify-between items-center px-3 mt-16 mb-4">
                 <div className="flex gap-2">
-                    <span className="text-3xl font-semibold text-gray-800 mb-2">파일 목록</span>
+                    <span className="text-3xl font-semibold text-gray-800 mb-2">파일 업로드/다운로드</span>
                     <button
                         className="p-2 rounded-full hover:bg-gray-100 text-gray-400 mb-2"
-                        title="파일 목록 새로고침"
+                        title="파일 업로드/다운로드 새로고침"
                         onClick={refreshFileList}
                     >
                         <LuRefreshCw size={18} />

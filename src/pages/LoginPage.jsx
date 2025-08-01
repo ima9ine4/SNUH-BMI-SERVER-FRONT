@@ -46,7 +46,7 @@ const LoginPage = ({ onLogin }) => {
                 <div className="text-center mb-8">
                     <BMILogo className="mx-auto mb-4" />
                     {/* <h1 className="text-2xl font-bold text-gray-900 mb-2">SNUH BMI LAB</h1> */}
-                    <p className="text-gray-600 text-sm">컨테이너 관리 시스템</p>
+                    <p className="text-gray-600 text-sm">BMI Server Controller</p>
                 </div>
 
                 {/* 로그인 폼 */}
