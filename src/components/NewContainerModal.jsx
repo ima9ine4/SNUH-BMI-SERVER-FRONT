@@ -148,7 +148,7 @@ const NewContainerModal = ({ onClose, onSubmit, volumeOptions }) => {
                         <option value="bmi-gpu147">bmi-gpu147</option>
                         <option value="bmi-gpu148">bmi-gpu148</option>
                         <option value="bmi-gpu127">bmi-gpu127</option>
-                        <option value="bmi-gpu127">bmi-gpu186</option>
+                        <option value="bmi-gpu186">bmi-gpu186</option>
                     </select>
 
                     <label className="block text-sm font-medium text-gray-700">
