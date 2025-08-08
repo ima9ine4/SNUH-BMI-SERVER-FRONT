@@ -35,4 +35,22 @@ export const deleteUserApi = ({userPW, user_id}) => {
     })
 }
 
+// 사용자 추가 
+export const addUserApi = ({ userPW, user_id, user_name, user_password })=> {
+    console.log('userPw', userPW);
+    console.log('user_id', user_id);
+    console.log('user_name', user_name);
+    console.log('user_password', user_password);
+    const requestBody = '';
+    return axios.post(`${ADMIN_URL}/Users`, requestBody, {
+        params: { 
+            userID: user_id,
+            userName: user_name,
+            userPassword: user_password 
+        },
+        headers: {
+            'accept': 'application/json',
+            'BMI_SWAGGER_KEY': userPW,
+        }
+    });
 }
