@@ -139,7 +139,7 @@ const MainPage = ({ user, onLogout }) => {
                 refreshContainerList();
             })
             .catch((err) => {
-                alert("컨테이너 생성에 실패하였습니다.");
+                alert("컨테이너 생성에 실패하였습니다. 다시 시도해주세요.");
             })
             .finally(() => {
                 setCreateLoading(false);
