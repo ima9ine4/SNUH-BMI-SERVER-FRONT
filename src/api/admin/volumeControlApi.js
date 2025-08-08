@@ -26,4 +26,13 @@ export const AddVolumeUserApi = ({ userPW, vol_name, user_name })=> {
         }
     });
 }
+
+export const DeleteVolumeApi = ({ userPW, vol_name })=> {
+    return axios.delete(`${ADMIN_URL}/volume_control/volumes/${vol_name}`, {
+        headers: {
+            'accept': 'application/json',
+            'BMI_SWAGGER_KEY': userPW,
+        }
+    });
+}
 }
