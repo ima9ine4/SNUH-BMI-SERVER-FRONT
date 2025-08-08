@@ -17,7 +17,7 @@ import FileUploadModal from '../components/FileUploadModal';
 import { UploadFile, DownloadFile } from '../api/FileApi';
 import DockerVolumeSkeletonRow from '../components/skeleton/DockerVolumeSkeleton';
 
-const COMPANY_NAME = 'SNUH BMI LAB SERVER';
+const COMPANY_NAME = 'BMI Server Controller';
 
 const PAGE_SIZE = 5;
 const FILE_PAGE_SIZE = 5;
