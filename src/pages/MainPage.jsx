@@ -17,7 +17,7 @@ import FileUploadModal from '../components/FileUploadModal';
 import { UploadFile, DownloadFile } from '../api/FileApi';
 import DockerVolumeSkeletonRow from '../components/skeleton/DockerVolumeSkeleton';
 
-const COMPANY_NAME = 'SNUH BMI LAB SERVER';
+const COMPANY_NAME = 'BMI Server Controller';
 
 const PAGE_SIZE = 5;
 const FILE_PAGE_SIZE = 5;
@@ -139,7 +139,7 @@ const MainPage = ({ user, onLogout }) => {
                 refreshContainerList();
             })
             .catch((err) => {
-                alert("컨테이너 생성에 실패하였습니다.");
+                alert("컨테이너 생성에 실패하였습니다. 다시 시도해주세요.");
             })
             .finally(() => {
                 setCreateLoading(false);
