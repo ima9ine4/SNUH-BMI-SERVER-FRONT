@@ -22,4 +22,17 @@ export const getUserDownloadRequests = ({userPW, user_id}) => {
     });
 }
 
+// 사용자 삭제
+export const deleteUserApi = ({userPW, user_id}) => {
+    return axios.delete(`${ADMIN_URL}/Users`, {
+        params: { 
+            userID: user_id 
+        },
+        headers: {
+            'accept': 'application/json',
+            'BMI_SWAGGER_KEY': userPW
+        }
+    })
+}
+
 }
