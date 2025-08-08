@@ -1,6 +1,7 @@
 import axios from 'axios';
 const ADMIN_URL = process.env.REACT_APP_API_ADMIN_URL;
 
+// 사용자 조회
 export const getAllUsers = (userPW) => {
     return axios.get(`${ADMIN_URL}/Users/list`, {
         headers: {
@@ -8,6 +9,7 @@ export const getAllUsers = (userPW) => {
             'BMI_SWAGGER_KEY': userPW,
         }
     });
+}
 
 // 특정 사용자의 파일 다운로드 신청 목록 조회
 export const getUserDownloadRequests = ({userPW, user_id}) => {
