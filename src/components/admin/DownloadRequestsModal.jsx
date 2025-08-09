@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { getUserDownloadRequests, approveDownloadRequest } from '../../api/admin/userApi';
+import AdminFileDownloadSkeletonRow from '../skeleton/admin/AdminFileDownloadSkeletonRow';
 
 const DownloadRequestsModal = ({ onClose, user, userPW }) => {
     const [downloadRequests, setDownloadRequests] = useState([]);
@@ -52,15 +53,6 @@ const DownloadRequestsModal = ({ onClose, user, userPW }) => {
                 <p className="text-sm text-gray-600 mb-6">사용자: {user?.user_id}</p>
 
                 <div className='px-2'>
-                    {loading ? (
-                        <div className="flex justify-center items-center py-8">
-                            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-                        </div>
-                    ) : downloadRequests.length === 0 ? (
-                        <div className="text-center py-8 text-gray-500">
-                            <p>다운로드 신청 내역이 없습니다.</p>
-                        </div>
-                    ) : (
                         <div className="overflow-x-auto">
                             <table className="w-full min-w-[900px] text-xs sm:text-sm table-fixed">
                                 <colgroup>
@@ -80,7 +72,16 @@ const DownloadRequestsModal = ({ onClose, user, userPW }) => {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {Object.values(downloadRequests).map((request, index) => (
+                                    {loading
+                                        ? Array.from({ length: 5 }).map((_, idx) => <AdminFileDownloadSkeletonRow key={idx} />)
+                                        : downloadRequests.length === 0 ? (
+                                            <tr>
+                                                <td colSpan="5" className="text-center py-8 text-gray-500">
+                                                    <p>다운로드 신청 내역이 없습니다.</p>
+                                                </td>
+                                            </tr>
+                                        ) : (
+                                            Object.values(downloadRequests).map((request, index) => (
                                         <tr key={index} className="group border-b border-gray-100 last:border-0 hover:bg-blue-50/60 transition">
                                             <td className="py-3 px-2 align-middle text-center text-gray-500 font-medium">
                                                 {downloadRequests.length - index}
@@ -121,11 +122,11 @@ const DownloadRequestsModal = ({ onClose, user, userPW }) => {
                                                 )}
                                             </td>
                                         </tr>
-                                    ))}
+                                    )))}
                                 </tbody>
                             </table>
                         </div>
-                    )}
+                    
                 </div>
 
                 <div className="flex justify-end gap-2 mt-8">
