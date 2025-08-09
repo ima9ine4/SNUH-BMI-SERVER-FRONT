@@ -24,6 +24,20 @@ export const getUserDownloadRequests = ({userPW, user_id}) => {
     });
 }
 
+// 파일 다운로드 신청 허가
+export const approveDownloadRequest = ({userPW, user_id, file_name}) => {
+    return axios.post(`${ADMIN_URL}/Client_Download/move_file/`, {}, {
+        params: { 
+            userID: user_id,
+            fileName: file_name
+        },
+        headers: {
+            'accept': 'application/json',
+            'BMI_SWAGGER_KEY': userPW,
+        }
+    });
+}
+
 // 사용자 삭제
 export const deleteUserApi = ({userPW, user_id}) => {
     return axios.delete(`${ADMIN_URL}/Users`, {
