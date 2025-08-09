@@ -447,19 +447,29 @@ const AdminPage = ({ user, onLogout }) => {
                         </button>
                         
                         <div className="flex items-center space-x-1">
-                            {Array.from({ length: userTotalPages }, (_, i) => i + 1).map((pageNum) => (
-                                <button
-                                    key={pageNum}
-                                    onClick={() => setUserPage(pageNum)}
-                                    className={`px-3 py-1 rounded-lg text-sm font-medium ${
-                                        userPage === pageNum
-                                            ? 'bg-blue-600 text-white'
-                                            : 'border border-gray-300 text-gray-600 hover:bg-gray-50'
-                                    }`}
-                                >
-                                    {pageNum}
-                                </button>
-                            ))}
+                            {(() => {
+                                const startPage = Math.max(1, userPage - 2);
+                                const endPage = Math.min(userTotalPages, startPage + 4);
+                                const pages = [];
+                                for (let i = startPage; i <= endPage; i++) {
+                                    pages.push(i);
+                                }
+                                return pages.map((pageNum) => (
+                                    <button
+                                        key={pageNum}
+                                        onClick={() => {
+                                            setUserPage(pageNum);
+                                        }}
+                                        className={`px-3 py-1 rounded-lg text-sm font-medium ${
+                                            userPage === pageNum
+                                                ? 'bg-blue-600 text-white'
+                                                : 'border border-gray-300 text-gray-600 hover:bg-gray-50'
+                                        }`}
+                                    >
+                                        {pageNum}
+                                    </button>
+                                ));
+                            })()}
                         </div>
                         
                         <button
