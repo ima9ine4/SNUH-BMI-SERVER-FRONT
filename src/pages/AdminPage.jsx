@@ -15,17 +15,36 @@ import DownloadRequestsModal from '../components/admin/DownloadRequestsModal';
 // 사용자 목록 관련
 import AddUserModal from '../components/admin/AddUserModal';
 
+// 컨테이너 목록 관련
+import AdminContainerSkeletonRow from '../components/skeleton/admin/AdminContainerSkeletonRow';
+import { getAllContainersApi } from '../api/admin/containerApi';
+import { FaExternalLinkAlt } from 'react-icons/fa';
+
 const COMPANY_NAME = 'BMI Server Controller ADMIN';
+
+function mapApiContainer(apiObj) { // api response의 원본 json 배열을 가공하여 저장
+    return {
+        user_id: apiObj["사용자 ID"],
+        status: apiObj["status"] === "true" ? "Running" : "Stopped",
+        name: apiObj["컨테이너이름"],
+        image: apiObj["이미지이름"],
+        cpu: apiObj["CPU크기(core)"] + " core",
+        ram: apiObj["RAM크기(GB)"] + "GB",
+        gpu: apiObj["GPU슬롯"],
+        server: apiObj["생성 서버"],
+        address: apiObj["접속주소"],
+    };
+}
 
 const AdminPage = ({ user, onLogout }) => {
     const [profileOpen, setProfileOpen] = useState(false);
     const profileRef = useRef(null);
 
+    // 도커 볼륨 목록 관련
     const [dockerVolumeListloading, setDockerVolumeListLoading] = useState(true);
     const [dockerVolumeData, setDockerVolumeData] = useState([]);
     const [hoveredVolume, setHoveredVolume] = useState(null);
     const [searchKeyword, setSearchKeyword] = useState("");
-
     const [showNewVolumeModal, setShowNewVolumeModal] = useState(false);
     const [showAddVolumeUserModal, setShowAddVolumeUserModal] = useState(false);
     const [createVolumeLoading, setCreateVolumeLoading] = useState(false);
@@ -41,6 +60,14 @@ const AdminPage = ({ user, onLogout }) => {
     const [userList, setUserList] = useState([]);
     const [userPage, setUserPage] = useState(1);
     const USER_PAGE_SIZE = 10;
+
+    // 컨테이너 목록 관련
+    const [containerData, setContainerData] = useState([]);
+    const [containerLoading, setContainerLoading] = useState(false);
+    const [containerPage, setContainerPage] = useState(1);
+    const [totalContainerCount, setTotalContainerCount] = useState(0);
+    const CONTAINER_PAGE_SIZE = 10;
+    const totalContainerPages = Math.ceil(totalContainerCount / CONTAINER_PAGE_SIZE);
 
     // 도커 볼륨 목록 새로고침 함수
     const refreshDockerVolumeList = () => {
@@ -136,7 +163,8 @@ const AdminPage = ({ user, onLogout }) => {
             });
     }
 
-    const handleDeleteVolume = (vol_name) => { // 볼륨 삭제 API 호출
+    // 볼륨 삭제 API 호출
+    const handleDeleteVolume = (vol_name) => { 
         if (window.confirm(`${vol_name} 볼륨을 삭제하시겠습니까?`)){
             setDockerVolumeData((prev) => {
                 const backup = {...prev};
@@ -157,7 +185,8 @@ const AdminPage = ({ user, onLogout }) => {
         }
     };
 
-    const handleDeleteVolumeUser = (vol_name, user_name) => { // 볼륨 사용자 삭제 API 호출
+     // 볼륨 사용자 삭제 API 호출
+    const handleDeleteVolumeUser = (vol_name, user_name) => {
         if (window.confirm(`${vol_name} 볼륨의 ${user_name} 사용자를 삭제하시겠습니까?`)){
             setDockerVolumeData((prev) => {
                 const backup = {...prev};
@@ -185,7 +214,6 @@ const AdminPage = ({ user, onLogout }) => {
             });
         }
     };
-
 
     // 사용자 목록 새로고침 함수
     const refreshUserList = () => {
@@ -230,7 +258,7 @@ const AdminPage = ({ user, onLogout }) => {
         }
     };
 
-     // 사용자 생성 API 호출
+    // 사용자 생성 API 호출
      const handleAddUser = ({ user_id, user_name, user_password }) => {
         addUserApi({userPW: user.userPW, user_id: user_id, user_name: user_name, user_password: user_password})
             .then((res) => {
@@ -247,9 +275,26 @@ const AdminPage = ({ user, onLogout }) => {
             });
     }
 
+    // 컨테이너 목록 새로고침 함수
+    const refreshContainerList = (pageNum = 1) => {
+        setContainerLoading(true);
+        getAllContainersApi({userPW: user.userPW, pageNum: pageNum})
+            .then((res) => {
+                const mapped = res.data.data.item_list.map(mapApiContainer);
+                setContainerData(mapped);
+                setTotalContainerCount(res.data.data.total_item_count);
+                setContainerLoading(false);
+            })
+            .catch((err) => {
+                console.error('컨테이너 목록 조회에 실패했습니다. 다시 시도해주세요.', err);
+                setContainerLoading(false);
+            });
+    };
+
     useEffect(() => {
         refreshDockerVolumeList();
         refreshUserList();
+        refreshContainerList();
     }, []);
 
     // 외부 영역 클릭 감지
@@ -420,6 +465,149 @@ const AdminPage = ({ user, onLogout }) => {
                         <button
                             onClick={() => setUserPage(prev => Math.min(prev + 1, userTotalPages))}
                             disabled={userPage === userTotalPages}
+                            className="px-3 py-1 rounded-lg border border-gray-300 text-gray-600 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed text-sm"
+                        >
+                            다음
+                        </button>
+                    </div>
+                </div>
+            )}
+
+            {/* 컨테이너 목록 헤더 */}
+            <div className="max-w-7xl mx-auto flex justify-between items-center px-3 mt-8 mb-4">
+                <div className="flex gap-2">
+                    <span className="text-3xl font-semibold text-gray-800 mb-2">컨테이너 목록</span>
+                    <button
+                        className="p-2 rounded-full hover:bg-gray-100 text-gray-400 mb-2"
+                        title="컨테이너 목록 새로고침"
+                        onClick={() => refreshContainerList(containerPage)}
+                    >
+                        <LuRefreshCw size={18} />
+                    </button>
+                </div>
+
+            </div>
+
+            {/* 컨테이너 목록 테이블 */}
+            <div className="max-w-7xl mx-auto bg-white rounded-xl shadow-md border border-gray-200 mb-10 overflow-x-auto">
+                <table className="w-full min-w-[900px] text-xs sm:text-sm table-fixed">
+                <colgroup>
+                    <col className="w-40" />
+                    <col className="w-48" />
+                    <col className="w-40" />
+                    <col className="w-16" />
+                    <col className="w-16" />
+                    <col className="w-16" />
+                    <col className="w-28" />
+                    <col className="w-20" />
+                    <col className="w-20" />
+                </colgroup>
+                <thead>
+                    <tr className="bg-gray-50 text-gray-700 border-b border-gray-200">
+                    <th className="border-r border-gray-200 py-3 px-2 font-semibold text-xs tracking-wide">사용자 ID</th>
+                    <th className="border-r border-gray-200 py-3 px-2 font-semibold text-xs tracking-wide">컨테이너 이름</th>
+                    <th className="border-r border-gray-200 py-3 px-2 font-semibold text-xs tracking-wide">이미지 이름</th>
+                    <th className="border-r border-gray-200 py-3 px-2 font-semibold text-xs tracking-wide">CPU</th>
+                    <th className="border-r border-gray-200 py-3 px-2 font-semibold text-xs tracking-wide">RAM</th>
+                    <th className="border-r border-gray-200 py-3 px-2 font-semibold text-xs tracking-wide">GPU 슬롯</th>
+                    <th className="border-r border-gray-200 py-3 px-2 font-semibold text-xs tracking-wide">생성 서버</th>
+                    <th className="border-r gorder-gray-200 py-3 px-2 font-semibold text-xs tracking-wide">상태</th>
+                    <th className="py-3 px-2 font-semibold text-xs tracking-wide">접속</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {containerLoading
+                        ? Array.from({ length: 10 }).map((_, idx) => <AdminContainerSkeletonRow key={idx} />)
+                        : containerData.length === 0 ? (
+                            <tr>
+                                <td colSpan="8" className="text-center py-8 text-gray-500">
+                                    컨테이너가 없습니다.
+                                </td>
+                            </tr>
+                        ) : (
+                            containerData.map((c) => (
+                                <tr key={c.name} className="group border-b border-gray-100 last:border-0 hover:bg-blue-50/60 transition">
+                                    <td className="border-r border-gray-200 py-3 px-2 align-middle text-center font-semibold text-gray-700 truncate">{c.user_id}</td>
+                                    <td className="border-r border-gray-200 py-3 px-2 align-middle text-center font-semibold text-gray-700 truncate">{c.name}</td>
+                                    <td className="border-r border-gray-200 py-3 px-2 align-middle text-center text-gray-700 truncate">{c.image}</td>
+                                    <td className="border-r border-gray-200 py-3 px-2 align-middle text-center text-gray-700">{c.cpu}</td>
+                                    <td className="border-r border-gray-200 py-3 px-2 align-middle text-center text-gray-700">{c.ram}</td>
+                                    <td className="border-r border-gray-200 py-3 px-2 align-middle text-center text-gray-700">{c.gpu}</td>
+                                    <td className="border-r border-gray-200 py-3 px-2 align-middle text-center text-gray-700">{c.server}</td>
+                                    <td className="border-r gorder-gray-200 py-3 px-2 align-middle text-center">
+                                        <span className={`inline-block px-2.5 py-1 rounded-full text-xs font-semibold border ${c.status === 'Running' ? 'bg-green-50 text-green-700 border-green-200' : 'bg-red-50 text-red-600 border-red-200'}`}>{c.status}</span>
+                                    </td>
+                                    <td className="py-3 px-2 align-middle text-center">
+                                        {c.status === 'Running'
+                                            ? <a
+                                                href={c.address}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="inline-flex items-center gap-1 text-blue-600 hover:text-blue-800 font-medium underline"
+                                                title="접속"
+                                            >
+                                            {c.status === 'Running' ? '접속' : '-'}
+                                            <FaExternalLinkAlt className="inline-block text-xs mb-0.5" />
+                                        </a>
+                                        : <span>-</span>
+                                        }
+                                    </td>
+                                </tr>
+                            ))
+                    )}
+                </tbody>
+                </table>
+            </div>
+            {/* 컨테이너 목록 페이지네이션 */}
+            {totalContainerPages > 1 && (
+                <div className="max-w-7xl mx-auto flex justify-center items-center px-3 mb-10">
+                    <div className="flex items-center space-x-2">
+                        <button
+                            onClick={() => {
+                                const newPage = containerPage - 1;
+                                setContainerPage(newPage);
+                                refreshContainerList(newPage);
+                            }}
+                            disabled={containerPage === 1}
+                            className="px-3 py-1 rounded-lg border border-gray-300 text-gray-600 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed text-sm"
+                        >
+                            이전
+                        </button>
+                        
+                        <div className="flex items-center space-x-1">
+                            {(() => {
+                                const startPage = Math.max(1, containerPage - 2);
+                                const endPage = Math.min(totalContainerPages, startPage + 4);
+                                const pages = [];
+                                for (let i = startPage; i <= endPage; i++) {
+                                    pages.push(i);
+                                }
+                                return pages.map((pageNum) => (
+                                    <button
+                                        key={pageNum}
+                                        onClick={() => {
+                                            setContainerPage(pageNum);
+                                            refreshContainerList(pageNum);
+                                        }}
+                                        className={`px-3 py-1 rounded-lg text-sm font-medium ${
+                                            containerPage === pageNum
+                                                ? 'bg-blue-600 text-white'
+                                                : 'border border-gray-300 text-gray-600 hover:bg-gray-50'
+                                        }`}
+                                    >
+                                        {pageNum}
+                                    </button>
+                                ));
+                            })()}
+                        </div>
+                        
+                        <button
+                            onClick={() => {
+                                const newPage = containerPage + 1;
+                                setContainerPage(newPage);
+                                refreshContainerList(newPage);
+                            }}
+                            disabled={containerPage === totalContainerPages}
                             className="px-3 py-1 rounded-lg border border-gray-300 text-gray-600 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed text-sm"
                         >
                             다음
