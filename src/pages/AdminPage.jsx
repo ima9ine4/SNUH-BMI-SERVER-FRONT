@@ -240,10 +240,6 @@ const AdminPage = ({ user, onLogout }) => {
                     .find(key => prev[key].user_id === user_id);
                 delete updated[keyToDelete];
 
-                console.log('backup', backup);
-                console.log('updated', updated);
-                console.log('keyToDelete', keyToDelete);
-
                 deleteUserApi({userPW: user.userPW, user_id: user_id})
                 .then(() => {
                     console.log("정상적으로 삭제되었습니다.");
