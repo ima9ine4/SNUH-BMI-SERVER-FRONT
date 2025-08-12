@@ -739,17 +739,17 @@ const AdminPage = ({ user, onLogout }) => {
                                 </tr>
                             ));
                         })}
-                        {showAddVolumeUserModal && (
-                            <AddVolumeUserModal
-                                onClose={() => setShowAddVolumeUserModal(false)}
-                                onSubmit={(users) => {
-                                    handleAddVolumeUser(showAddVolumeUserModal, users)}
-                                }
-                                userOptions={userOptions}
-                            />
-                        )}
-                </tbody>
+                    </tbody>
                 </table>
+                {showAddVolumeUserModal && (
+                    <AddVolumeUserModal
+                        onClose={() => setShowAddVolumeUserModal(false)}
+                        onSubmit={(users) => {
+                            handleAddVolumeUser(showAddVolumeUserModal, users)}
+                        }
+                        userOptions={userOptions}
+                    />
+                )}
             </div>
         </div>
     );
