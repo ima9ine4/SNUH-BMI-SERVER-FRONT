@@ -1,12 +1,15 @@
 import React, { useState } from "react";
 import { ReactComponent as BMILogo } from "./../snuh-bmi-lab-logo.svg";
-import { loginUser } from "../api/loginApi";
+import { loginUser, resetPassword } from "../api/loginApi";
+import PasswordResetModal from "../components/PasswordResetModal";
 
 const LoginPage = ({ onLogin }) => {
     const [ userId, setUserId ] = useState("");
     const [ userPW, setuserPW ] = useState("");
     const [ error, setError ] = useState("");
     const [ loading, setLoading ] = useState(false);
+    const [ showPwResetModal, setShowPwResetModal ] = useState(false);
+    const [ PwResetLoading, setPwResetLoading] = useState(false);
     
     const handleLogin = async () => {
         if (userId === "" || userPW === ""){
@@ -38,6 +41,25 @@ const LoginPage = ({ onLogin }) => {
             setLoading(false);
         }
     }
+
+    const handlePasswordReset = (userId) => { // 비밀번호 초기화 API 호출
+            setPwResetLoading(true);
+            resetPassword({userId: userId})
+                .then((res) => {
+                    if(res.data.error){
+                        alert("존재하지 않는 사용자입니다.");
+                    }else{
+                        alert("비밀번호 초기화가 완료되었습니다.");
+                        setShowPwResetModal(false);
+                    }
+                })
+                .catch((err) => {
+                    alert("비밀번호 초기화에 실패하였습니다. 다시 시도해주세요.");
+                })
+                .finally(() => {
+                    setShowPwResetModal(false);
+                });
+        };
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-indigo-50">
@@ -97,6 +119,18 @@ const LoginPage = ({ onLogin }) => {
                         로그인
                     </button>
                 </form>
+                <span
+                    className="flex justify-center mt-4 text-gray-600 underline text-xs" 
+                    onClick={() => setShowPwResetModal(true)}>
+                        비밀번호 초기화
+                </span>
+                
+                {showPwResetModal && (
+                    <PasswordResetModal 
+                        onClose={() => setShowPwResetModal(false)}
+                        onSubmit={handlePasswordReset}
+                    />
+                )}
 
                 {loading && (
                 <div className="fixed inset-0 flex items-center justify-center z-50">
