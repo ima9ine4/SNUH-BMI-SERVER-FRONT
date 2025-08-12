@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { getUserDownloadRequests, approveDownloadRequest } from '../../api/admin/userApi';
 import AdminFileDownloadSkeletonRow from '../skeleton/admin/AdminFileDownloadSkeletonRow';
+import dayjs from 'dayjs';
 
 const DownloadRequestsModal = ({ onClose, user, userPW }) => {
     const [downloadRequests, setDownloadRequests] = useState([]);
@@ -87,14 +88,14 @@ const DownloadRequestsModal = ({ onClose, user, userPW }) => {
                                                 {downloadRequests.length - index}
                                             </td>
                                             <td className="py-3 px-2 align-middle text-center text-gray-700 truncate">
-                                                {new Date(request.upload_date).toLocaleDateString('ko-KR')}
+                                                {new dayjs(request.upload_date).format('YYYY-MM-DD HH:mm:ss')}
                                             </td>
                                             <td className="py-3 px-2 align-middle text-center font-semibold text-gray-700 truncate">
                                                 {request.name}
                                             </td>
                                             <td className="py-3 px-2 align-middle text-center text-gray-700">
                                                 {request.allowed_date 
-                                                    ? new Date(request.allowed_date).toLocaleDateString('ko-KR')
+                                                    ? new dayjs(request.allowed_date).format('YYYY-MM-DD HH:mm:ss')
                                                     : '-'
                                                 }
                                             </td>

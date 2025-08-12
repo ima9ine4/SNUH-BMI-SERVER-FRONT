@@ -154,8 +154,8 @@ const MainPage = ({ user, onLogout }) => {
                 const data = res.data.data.item_list;
                 const convertedDateData = data.map(item => ({
                     ...item,
-                    allowed_date: dayjs(item.allowed_date).add(9, 'hour').format('YYYY-MM-DD HH:mm:ss'),
-                    upload_date: dayjs(item.upload_date).add(9, 'hour').format('YYYY-MM-DD HH:mm:ss'),
+                    allowed_date: dayjs(item.allowed_date).format('YYYY-MM-DD HH:mm:ss'),
+                    upload_date: dayjs(item.upload_date).format('YYYY-MM-DD HH:mm:ss'),
                 }))
                 setFileData(convertedDateData);
                 setGetFileListLoading(false);

@@ -30,3 +30,13 @@ export const changePassword = ({ userId, userPW, new_password })=> {
         }
     });
 }
+
+export const resetPassword = (userId)=> {
+    const requestBody = '';
+    return axios.put(`${BASE_URL}/container_manager/password/reset`, requestBody, {
+        headers: {
+            'accept': 'application/json',
+            'userID': userId.userId
+        }
+    });
+}

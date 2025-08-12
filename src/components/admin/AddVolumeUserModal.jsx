@@ -2,17 +2,17 @@ import {useState} from 'react';
 import Select from 'react-select';
 
 const AddVolumeUserModal = ({ onClose, onSubmit, userOptions }) => {
-    const [selectedUser, setSelectedUser] = useState(null);
+    const [selectedUsers, setselectedUsers] = useState([]);
     const [loading, setLoading] = useState('');
     const [error, setError] = useState("");
 
     const handleSubmit = () => {
-        if (!selectedUser) {
+        if (!selectedUsers) {
             setError("사용자를 선택해주세요.");
             return;
         }
         setError("");
-        onSubmit(selectedUser.value);
+        onSubmit(selectedUsers);
     };
   
     return (
@@ -28,14 +28,22 @@ const AddVolumeUserModal = ({ onClose, onSubmit, userOptions }) => {
                             사용자 선택
                         </label>
                         <Select
-                            name="user"
-                            value={selectedUser}
-                            options={userOptions}
-                            onChange={setSelectedUser}
-                            isDisabled={loading}
-                            placeholder="사용자를 선택하세요"
+                            isMulti
+                            name="users"
                             menuPortalTarget={document.body}
-                            styles={{ menuPortal: base => ({ ...base, zIndex: 9999 }) }}
+                            styles={{
+                                menuPortal: (base) => ({ ...base, zIndex: 9999})
+                            }
+                            }
+                            value={selectedUsers.map(u => ({ value: u, label: u }))}
+                            options={userOptions}
+                            onChange={selectedOptions => {
+                                const selected = selectedOptions ? selectedOptions.map(opt => opt.value) : [];
+                                setselectedUsers(selected);
+                            }}
+                            className="basic-multi-select"
+                            classNamePrefix="select"
+                            isDisabled={loading}
                         />
                     </div>
                 </div>
