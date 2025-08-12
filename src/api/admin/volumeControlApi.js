@@ -17,9 +17,11 @@ export const CreateVolumeApi = ({ userPW, volumeData })=> {
     });
 }
 
-export const AddVolumeUserApi = ({ userPW, vol_name, user_name })=> {
-    const requestBody = '';
-    return axios.post(`${ADMIN_URL}/volume_control/volumes/${vol_name}/users/${user_name}`, requestBody,{
+export const AddVolumeUserApi = ({ userPW, vol_name, users })=> {
+    const requestBody = {
+        'users': users
+    };
+    return axios.post(`${ADMIN_URL}/volume_control/volumes/${vol_name}/users`, requestBody, {
         headers: {
             'accept': 'application/json',
             'BMI_SWAGGER_KEY': userPW,

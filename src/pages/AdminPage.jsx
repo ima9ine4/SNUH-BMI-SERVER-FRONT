@@ -146,9 +146,9 @@ const AdminPage = ({ user, onLogout }) => {
     }
 
     // 볼륨 생성 API 호출
-    const handleAddVolumeUser = ( vol_name, user_name ) => {
+    const handleAddVolumeUser = ( vol_name, users ) => {
         setAddVolumeUserLoading(true);
-        AddVolumeUserApi({userPW: user.userPW, vol_name: vol_name, user_name: user_name})
+        AddVolumeUserApi({userPW: user.userPW, vol_name: vol_name, users: users})
             .then((res) => {
                 alert("사용자가 추가되었습니다.");
                 setShowAddVolumeUserModal(false);
@@ -746,7 +746,9 @@ const AdminPage = ({ user, onLogout }) => {
                         {showAddVolumeUserModal && (
                             <AddVolumeUserModal
                                 onClose={() => setShowAddVolumeUserModal(false)}
-                                onSubmit={(username) => handleAddVolumeUser(showAddVolumeUserModal, username)}
+                                onSubmit={(users) => {
+                                    handleAddVolumeUser(showAddVolumeUserModal, users)}
+                                }
                                 userOptions={userOptions}
                             />
                         )}
