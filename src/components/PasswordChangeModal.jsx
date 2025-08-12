@@ -47,7 +47,7 @@ const PasswordChangeModal = ({ onClose, onSubmit, user }) => {
                 onClick={(e) => e.stopPropagation()}
             >
                 <h2 className="text-xl font-bold text-blue-700 mb-6">비밀번호 변경</h2>
-                <div class="mb-4">
+                <div className="mb-4">
                     <label htmlFor="userPW" className="block text-sm font-medium text-gray-700 mb-1">
                         현재 비밀번호
                     </label>
