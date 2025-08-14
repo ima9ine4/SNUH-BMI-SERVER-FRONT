@@ -88,14 +88,14 @@ const DownloadRequestsModal = ({ onClose, user, userPW }) => {
                                                 {downloadRequests.length - index}
                                             </td>
                                             <td className="py-3 px-2 align-middle text-center text-gray-700 truncate">
-                                                {new dayjs(request.upload_date).format('YYYY-MM-DD HH:mm:ss')}
+                                                {new dayjs(request.upload_date).add(9, 'hour').format('YYYY-MM-DD HH:mm:ss')}
                                             </td>
                                             <td className="py-3 px-2 align-middle text-center font-semibold text-gray-700 truncate">
                                                 {request.name}
                                             </td>
                                             <td className="py-3 px-2 align-middle text-center text-gray-700">
                                                 {request.allowed_date 
-                                                    ? new dayjs(request.allowed_date).format('YYYY-MM-DD HH:mm:ss')
+                                                    ? new dayjs(request.allowed_date).add(9, 'hour').format('YYYY-MM-DD HH:mm:ss')
                                                     : '-'
                                                 }
                                             </td>
