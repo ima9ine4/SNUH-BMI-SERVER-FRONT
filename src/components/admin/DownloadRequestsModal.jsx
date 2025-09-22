@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { getUserDownloadRequests, approveDownloadRequest } from '../../api/admin/userApi';
 import AdminFileDownloadSkeletonRow from '../skeleton/admin/AdminFileDownloadSkeletonRow';
 import dayjs from 'dayjs';
@@ -59,7 +59,8 @@ const DownloadRequestsModal = ({ onClose, user, userPW }) => {
                                 <colgroup>
                                     <col className="w-8" />
                                     <col className="w-16" />
-                                    <col className="w-48" />
+                                    <col className="w-36" />
+                                    <col className="w-16" />
                                     <col className="w-16" />
                                     <col className="w-8" />
                                 </colgroup>
@@ -68,6 +69,7 @@ const DownloadRequestsModal = ({ onClose, user, userPW }) => {
                                         <th className="py-3 px-2 font-semibold text-xs tracking-wide">번호</th>
                                         <th className="py-3 px-2 font-semibold text-xs tracking-wide">신청 날짜</th>
                                         <th className="py-3 px-2 font-semibold text-xs tracking-wide">파일명</th>
+                                        <th className="py-3 px-2 font-semibold text-xs tracking-wide">파일 사이즈</th>
                                         <th className="py-3 px-2 font-semibold text-xs tracking-wide">허가 날짜</th>
                                         <th className="py-3 px-2 font-semibold text-xs tracking-wide">허가</th>
                                     </tr>
@@ -93,6 +95,7 @@ const DownloadRequestsModal = ({ onClose, user, userPW }) => {
                                             <td className="py-3 px-2 align-middle text-center font-semibold text-gray-700 truncate">
                                                 {request.name}
                                             </td>
+                                            <td className="py-3 px-2 align-middle text-center font-semibold text-gray-700 truncate">{request.file_size}</td>
                                             <td className="py-3 px-2 align-middle text-center text-gray-700">
                                                 {request.allowed_date 
                                                     ? new dayjs(request.allowed_date).add(9, 'hour').format('YYYY-MM-DD HH:mm:ss')
