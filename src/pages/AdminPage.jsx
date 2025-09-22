@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { FaChevronDown, FaChevronRight } from 'react-icons/fa';
 import { FiUserPlus, FiTrash2 } from 'react-icons/fi';
 import { getAllDockerVolumeList } from '../api/containerApi';
@@ -19,6 +19,7 @@ import AddUserModal from '../components/admin/AddUserModal';
 import AdminContainerSkeletonRow from '../components/skeleton/admin/AdminContainerSkeletonRow';
 import { getAllContainersApi } from '../api/admin/containerApi';
 import { FaExternalLinkAlt } from 'react-icons/fa';
+import dayjs from "dayjs";
 
 const COMPANY_NAME = 'BMI Server Controller ADMIN';
 
@@ -32,6 +33,7 @@ function mapApiContainer(apiObj) { // api response의 원본 json 배열을 가�
         ram: apiObj["RAM크기(GB)"] + "GB",
         gpu: apiObj["GPU슬롯"],
         server: apiObj["생성 서버"],
+        createdAt: apiObj["created_at"],
         address: apiObj["접속주소"],
     };
 }
@@ -317,7 +319,7 @@ const AdminPage = ({ user, onLogout }) => {
         return () => document.body.classList.remove('overflow-hidden');
     }, [showNewVolumeModal, showAddUserModal, showDownloadRequestsModal]);
 
-    const userOptions = Object.values(userList).map(user => ({ value: user.user_id, label: user.user_id }));
+    const userOptions = Object.values(userList).map(user => ({ value: user.user_id, label: user.user_id })).sort((a, b) => a.label.localeCompare(b.label, "en", {sensitivity: "base"}));
 
     return (
         <div className="min-h-screen bg-gray-50 font-sans text-gray-900">
@@ -505,6 +507,7 @@ const AdminPage = ({ user, onLogout }) => {
                     <col className="w-16" />
                     <col className="w-16" />
                     <col className="w-28" />
+                    <col className="w-24" />
                     <col className="w-20" />
                     <col className="w-20" />
                 </colgroup>
@@ -517,6 +520,7 @@ const AdminPage = ({ user, onLogout }) => {
                     <th className="border-r border-gray-200 py-3 px-2 font-semibold text-xs tracking-wide">RAM</th>
                     <th className="border-r border-gray-200 py-3 px-2 font-semibold text-xs tracking-wide">GPU 슬롯</th>
                     <th className="border-r border-gray-200 py-3 px-2 font-semibold text-xs tracking-wide">생성 서버</th>
+                    <th className="border-r border-gray-200 py-3 px-2 font-semibold text-xs tracking-wide">생성 일시</th>
                     <th className="border-r gorder-gray-200 py-3 px-2 font-semibold text-xs tracking-wide">상태</th>
                     <th className="py-3 px-2 font-semibold text-xs tracking-wide">접속</th>
                     </tr>
@@ -540,6 +544,9 @@ const AdminPage = ({ user, onLogout }) => {
                                     <td className="border-r border-gray-200 py-3 px-2 align-middle text-center text-gray-700">{c.ram}</td>
                                     <td className="border-r border-gray-200 py-3 px-2 align-middle text-center text-gray-700">{c.gpu}</td>
                                     <td className="border-r border-gray-200 py-3 px-2 align-middle text-center text-gray-700">{c.server}</td>
+                                    <td className="border-r border-gray-200 py-3 px-2 align-middle text-center text-gray-700">
+                                        {new dayjs(c.createdAt).add(9, 'hour').format('YYYY-MM-DD HH:mm:ss')}
+                                    </td>
                                     <td className="border-r gorder-gray-200 py-3 px-2 align-middle text-center">
                                         <span className={`inline-block px-2.5 py-1 rounded-full text-xs font-semibold border ${c.status === 'Running' ? 'bg-green-50 text-green-700 border-green-200' : 'bg-red-50 text-red-600 border-red-200'}`}>{c.status}</span>
                                     </td>

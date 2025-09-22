@@ -31,6 +31,7 @@ function mapApiContainer(apiObj) { // api response의 원본 json 배열을 가�
         ram: apiObj["RAM크기(GB)"] + "GB",
         gpu: apiObj["GPU슬롯"],
         server: apiObj["생성 서버"],
+        createdAt: apiObj["생성시간"],
         address: apiObj["접속주소"],
     };
 }
@@ -351,6 +352,7 @@ const MainPage = ({ user, onLogout }) => {
                     <col className="w-16" />
                     <col className="w-16" />
                     <col className="w-28" />
+                    <col className="w-24" />
                     <col className="w-20" />
                     <col className="w-12" />
                     <col className="w-16" />
@@ -365,6 +367,7 @@ const MainPage = ({ user, onLogout }) => {
                     <th className="py-3 px-2 font-semibold text-xs tracking-wide">RAM</th>
                     <th className="py-3 px-2 font-semibold text-xs tracking-wide">GPU 슬롯</th>
                     <th className="py-3 px-2 font-semibold text-xs tracking-wide">생성 서버</th>
+                    <th className="py-3 px-2 font-semibold text-xs tracking-wide">생성 일시</th>
                     <th className="py-3 px-2 font-semibold text-xs tracking-wide">상태</th>
                     <th className="py-3 px-2 font-semibold text-xs tracking-wide">동작</th>
                     <th className="py-3 px-2 font-semibold text-xs tracking-wide">접속</th>
@@ -383,6 +386,9 @@ const MainPage = ({ user, onLogout }) => {
                                 <td className="py-3 px-2 align-middle text-center text-gray-700">{c.ram}</td>
                                 <td className="py-3 px-2 align-middle text-center text-gray-700">{c.gpu}</td>
                                 <td className="py-3 px-2 align-middle text-center text-gray-700">{c.server}</td>
+                                <td className="py-3 px-2 align-middle text-center text-gray-700">
+                                    {new dayjs(c.createdAt).add(9, 'hour').format('YYYY-MM-DD HH:mm:ss')}
+                                </td>
                                 <td className="py-3 px-2 align-middle text-center">
                                 <span className={`inline-block px-2.5 py-1 rounded-full text-xs font-semibold border ${c.status === 'Running' ? 'bg-green-50 text-green-700 border-green-200' : 'bg-red-50 text-red-600 border-red-200'}`}>{c.status}</span>
                                 </td>
@@ -507,7 +513,8 @@ const MainPage = ({ user, onLogout }) => {
                 <table className="w-full min-w-[900px] text-xs sm:text-sm table-fixed">
                 <colgroup>
                     <col className="w-16" />
-                    <col className="w-48" />
+                    <col className="w-36" />
+                    <col className="w-8" />
                     <col className="w-16" />
                     <col className="w-16" />
                     <col className="w-8" />
@@ -516,6 +523,7 @@ const MainPage = ({ user, onLogout }) => {
                     <tr className="bg-gray-50 text-gray-700 border-b border-gray-200">
                     <th className="py-3 px-2 font-semibold text-xs tracking-wide">신청 날짜</th>
                     <th className="py-3 px-2 font-semibold text-xs tracking-wide">파일명</th>
+                    <th className="py-3 px-2 font-semibold text-xs tracking-wide">파일 사이즈</th>
                     <th className="py-3 px-2 font-semibold text-xs tracking-wide">허가 상태</th>
                     <th className="py-3 px-2 font-semibold text-xs tracking-wide">허가 날짜</th>
                     <th className="py-3 px-2 font-semibold text-xs tracking-wide">다운로드</th>
@@ -528,6 +536,7 @@ const MainPage = ({ user, onLogout }) => {
                             <tr key={index} className="group border-b border-gray-100 last:border-0 hover:bg-blue-50/60 transition">
                                 <td className="py-3 px-2 align-middle text-center text-gray-700 truncate">{c.upload_date}</td>
                                 <td className="py-3 px-2 align-middle text-center font-semibold text-gray-700 truncate">{c.name}</td>
+                                <td className="py-3 px-2 align-middle text-center font-semibold text-gray-700 truncate">{c.file_size}</td>
                                 <td className="py-3 px-2 align-middle text-center">
                                     <span
                                         className={`inline-block px-2.5 py-1 rounded-full text-xs font-semibold border
