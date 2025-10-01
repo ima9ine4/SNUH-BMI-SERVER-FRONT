@@ -243,11 +243,11 @@ const NewContainerModal = ({ onClose, onSubmit, volumeOptions }) => {
                         className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
                     >
                         <option value="">선택하세요</option>
-                        <option value="vscode_cuda_250110">vscode_cuda_250110</option>
-                        <option value="vscode_cpu_250110">vscode_cpu_250110</option>
-                        <option value="jupyter_cuda_250110">jupyter_cuda_250110</option>
-                        <option value="jupyter_cpu_250110">jupyter_cpu_250110</option>
-                        <option value="jupyter_cpu_250110">snuh-rstudio</option>
+                        <option value="vscode_cuda_250808">vscode_cuda_250808</option>
+                        <option value="vscode_cpu_250808">vscode_cpu_250808</option>
+                        <option value="jupyter_cuda_250808">jupyter_cuda_250808</option>
+                        <option value="jupyter_cpu_250808">jupyter_cpu_250808</option>
+                        <option value="rstudio_250926">snuh-rstudio</option>
                     </select>
                 </div>
 
