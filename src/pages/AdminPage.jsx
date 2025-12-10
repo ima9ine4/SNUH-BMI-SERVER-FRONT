@@ -17,7 +17,7 @@ import AddUserModal from '../components/admin/AddUserModal';
 
 // 컨테이너 목록 관련
 import AdminContainerSkeletonRow from '../components/skeleton/admin/AdminContainerSkeletonRow';
-import {deleteContainerApi, getAllContainersApi} from '../api/admin/containerApi';
+import {deleteContainerApi, getAllContainersApi, searchContainerApi} from '../api/admin/containerApi';
 import { FaExternalLinkAlt } from 'react-icons/fa';
 import dayjs from "dayjs";
 
@@ -70,6 +70,8 @@ const AdminPage = ({ user, onLogout }) => {
     const [totalContainerCount, setTotalContainerCount] = useState(0);
     const CONTAINER_PAGE_SIZE = 10;
     const totalContainerPages = Math.ceil(totalContainerCount / CONTAINER_PAGE_SIZE);
+    const [containerSearchKeyword, setContainerSearchKeyword] = useState("");
+    const [isSearchingContainer, setIsSearchingContainer] = useState(false);
 
     // 도커 볼륨 목록 새로고침 함수
     const refreshDockerVolumeList = () => {
@@ -273,9 +275,14 @@ const AdminPage = ({ user, onLogout }) => {
             });
     }
 
-    // 컨테이너 목록 새로고침 함수
+    // 컨테이너 목록 새로고침 함수 (초기 로딩, 리프레시 버튼 클릭 시 사용)
     const refreshContainerList = (pageNum = 1) => {
+         setContainerSearchKeyword('');
+         setIsSearchingContainer(false);
+         setContainerPage(1);
+
         setContainerLoading(true);
+
         getAllContainersApi({userPW: user.userPW, pageNum: pageNum})
             .then((res) => {
                 const mapped = res.data.data.item_list.map(mapApiContainer);
@@ -285,6 +292,29 @@ const AdminPage = ({ user, onLogout }) => {
             })
             .catch((err) => {
                 console.error('컨테이너 목록 조회에 실패했습니다. 다시 시도해주세요.', err);
+                setContainerLoading(false);
+            });
+    }
+
+    // 컨테이너 검색 API 호출 (검색창에 3글자 이상 입력 시 사용)
+    const searchContainerList = (keyword, pageNum = 1) => {
+        setContainerLoading(true);
+
+        searchContainerApi({
+            userPW: user.userPW,
+            keyword,
+            pageNum,
+        })
+            .then((res) => {
+                const mapped = res.data.data.item_list.map(mapApiContainer);
+                setContainerData(mapped);
+                setTotalContainerCount(res.data.data.total_item_count);
+                setIsSearchingContainer(true);
+            })
+            .catch((err) => {
+                console.error('컨테이너 검색에 실패했습니다. 다시 시도해주세요.', err);
+            })
+            .finally(() => {
                 setContainerLoading(false);
             });
     };
@@ -311,6 +341,17 @@ const AdminPage = ({ user, onLogout }) => {
         }
     };
 
+    // 컨테이너 목록 페이지네이션 함수(검색 여부로 분기)
+    const handleContainerPageChange = (pageNum) => {
+        setContainerPage(pageNum);
+
+        if (isSearchingContainer) {
+            searchContainerList(containerSearchKeyword, pageNum);
+        } else {
+            refreshContainerList(pageNum);
+        }
+    };
+    
     useEffect(() => {
         refreshDockerVolumeList();
         refreshUserList();
@@ -340,6 +381,28 @@ const AdminPage = ({ user, onLogout }) => {
         
         return () => document.body.classList.remove('overflow-hidden');
     }, [showNewVolumeModal, showAddUserModal, showDownloadRequestsModal]);
+
+    // 컨테이너 검색 input 디바운싱
+    useEffect(() => {
+        const keyword = containerSearchKeyword.trim();
+
+        // 0글자 -> 전체 목록으로 복귀
+        if (keyword.length === 0) {
+            refreshContainerList();
+            return;
+        }
+
+        // 1~3글자 -> 아무 것도 안함
+        if (keyword.length < 3) return;
+
+        // 3글자 이상 -> 디바운스 검색
+        const timer = setTimeout(() => {
+            setContainerPage(1);
+            searchContainerList(keyword, 1);
+        }, 300);
+
+        return () => clearTimeout(timer);
+    }, [containerSearchKeyword]);
 
     const userOptions = Object.values(userList).map(user => ({ value: user.user_id, label: user.user_id })).sort((a, b) => a.label.localeCompare(b.label, "en", {sensitivity: "base"}));
 
@@ -515,7 +578,14 @@ const AdminPage = ({ user, onLogout }) => {
                         <LuRefreshCw size={18} />
                     </button>
                 </div>
-
+                
+                <input
+                    type='text'
+                    placeholder='컨테이너 이름 검색 (3글자 이상)'
+                    value={containerSearchKeyword}
+                    onChange={(e) => setContainerSearchKeyword(e.target.value)}
+                    className='border border-gray-300 px-3 py-1 rounded-lg max-w-xs w-full hover:border-gray-400 focus:border-gray-900 outline-none'
+                />
             </div>
 
             {/* 컨테이너 목록 테이블 */}
@@ -562,7 +632,7 @@ const AdminPage = ({ user, onLogout }) => {
                             containerData.map((c) => (
                                 <tr key={c.name} className="group border-b border-gray-100 last:border-0 hover:bg-blue-50/60 transition">
                                     <td className="border-r border-gray-200 py-3 px-2 align-middle text-center font-semibold text-gray-700 truncate">{c.user_id}</td>
-                                    <td className="border-r border-gray-200 py-3 px-2 align-middle text-center font-semibold text-gray-700 truncate">{c.name}</td>
+                                    <td className="border-r border-gray-200 py-3 px-2 align-middle text-center font-semibold text-gray-700 truncate">{highlightText(c.name, containerSearchKeyword)}</td>
                                     <td className="border-r border-gray-200 py-3 px-2 align-middle text-center text-gray-700 truncate">{c.image}</td>
                                     <td className="border-r border-gray-200 py-3 px-2 align-middle text-center text-gray-700">{c.cpu}</td>
                                     <td className="border-r border-gray-200 py-3 px-2 align-middle text-center text-gray-700">{c.ram}</td>
@@ -609,7 +679,7 @@ const AdminPage = ({ user, onLogout }) => {
                             onClick={() => {
                                 const newPage = containerPage - 1;
                                 setContainerPage(newPage);
-                                refreshContainerList(newPage);
+                                handleContainerPageChange(newPage);
                             }}
                             disabled={containerPage === 1}
                             className="px-3 py-1 rounded-lg border border-gray-300 text-gray-600 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed text-sm"
@@ -630,7 +700,7 @@ const AdminPage = ({ user, onLogout }) => {
                                         key={pageNum}
                                         onClick={() => {
                                             setContainerPage(pageNum);
-                                            refreshContainerList(pageNum);
+                                            handleContainerPageChange(pageNum);
                                         }}
                                         className={`px-3 py-1 rounded-lg text-sm font-medium ${
                                             containerPage === pageNum
