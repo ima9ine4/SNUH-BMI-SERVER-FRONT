@@ -52,17 +52,23 @@ export const deleteUserApi = ({userPW, user_id}) => {
 }
 
 // 사용자 추가 
-export const addUserApi = ({ userPW, user_id, user_name, user_password })=> {
+export const addUserApi = ({ userPW, user_id, user_name, user_password, user_phone, user_email, user_department })=> {
     console.log('userPw', userPW);
     console.log('user_id', user_id);
     console.log('user_name', user_name);
     console.log('user_password', user_password);
+    console.log('user_phone', user_phone);
+    console.log('user_email', user_email);
+    console.log('user_department', user_department);
     const requestBody = '';
-    return axios.post(`${ADMIN_URL}/Users`, requestBody, {
+    return axios.post(`${ADMIN_URL}/Users/v2`, requestBody, {
         params: { 
             userID: user_id,
             userName: user_name,
-            userPassword: user_password 
+            userPassword: user_password,
+            phone: user_phone,
+            email: user_email,
+            department: user_department,
         },
         headers: {
             'accept': 'application/json',

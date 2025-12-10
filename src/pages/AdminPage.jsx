@@ -257,8 +257,8 @@ const AdminPage = ({ user, onLogout }) => {
     };
 
     // 사용자 생성 API 호출
-     const handleAddUser = ({ user_id, user_name, user_password }) => {
-        addUserApi({userPW: user.userPW, user_id: user_id, user_name: user_name, user_password: user_password})
+     const handleAddUser = ({ user_id, user_name, user_password, user_phone, user_email, user_department }) => {
+        addUserApi({userPW: user.userPW, user_id: user_id, user_name: user_name, user_password: user_password, user_phone: user_phone, user_email: user_email, user_department: user_department})
             .then((res) => {
                 alert("사용자가 추가되었습니다.");
                 setShowAddUserModal(false);
