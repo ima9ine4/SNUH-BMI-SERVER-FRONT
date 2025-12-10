@@ -17,7 +17,7 @@ import AddUserModal from '../components/admin/AddUserModal';
 
 // 컨테이너 목록 관련
 import AdminContainerSkeletonRow from '../components/skeleton/admin/AdminContainerSkeletonRow';
-import { getAllContainersApi } from '../api/admin/containerApi';
+import {deleteContainerApi, getAllContainersApi} from '../api/admin/containerApi';
 import { FaExternalLinkAlt } from 'react-icons/fa';
 import dayjs from "dayjs";
 
@@ -289,6 +289,28 @@ const AdminPage = ({ user, onLogout }) => {
             });
     };
 
+    // 컨테이너 삭제 API 호출
+    const handleDeleteContainer = (container_name) => {
+        if (window.confirm(`${container_name} 컨테이너를 삭제하시겠습니까?`)){
+            setContainerData(prev => {
+                const backup = {...prev};
+                const updated = prev.filter((c) => c.name === container_name);
+
+                deleteContainerApi({userPW: user.userPW, container_name: container_name})
+                    .then(() => {
+                        console.log("정상적으로 삭제되었습니다.");
+                        refreshContainerList()
+                    })
+                    .catch((err) => {
+                        alert("삭제에 실패하였습니다. 다시 시도해주세요.");
+                        console.error("Delete error", err);
+                        setContainerData(backup);
+                    });
+                return updated;
+            });
+        }
+    };
+
     useEffect(() => {
         refreshDockerVolumeList();
         refreshUserList();
@@ -510,6 +532,7 @@ const AdminPage = ({ user, onLogout }) => {
                     <col className="w-24" />
                     <col className="w-20" />
                     <col className="w-20" />
+                    <col className="w-16" />
                 </colgroup>
                 <thead>
                     <tr className="bg-gray-50 text-gray-700 border-b border-gray-200">
@@ -522,7 +545,8 @@ const AdminPage = ({ user, onLogout }) => {
                     <th className="border-r border-gray-200 py-3 px-2 font-semibold text-xs tracking-wide">생성 서버</th>
                     <th className="border-r border-gray-200 py-3 px-2 font-semibold text-xs tracking-wide">생성 일시</th>
                     <th className="border-r gorder-gray-200 py-3 px-2 font-semibold text-xs tracking-wide">상태</th>
-                    <th className="py-3 px-2 font-semibold text-xs tracking-wide">접속</th>
+                    <th className="border-r py-3 px-2 font-semibold text-xs tracking-wide">접속</th>
+                    <th className="border-gray-200 py-3 px-2 font-semibold text-xs tracking-wide">컨테이너<br></br>삭제</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -550,7 +574,7 @@ const AdminPage = ({ user, onLogout }) => {
                                     <td className="border-r gorder-gray-200 py-3 px-2 align-middle text-center">
                                         <span className={`inline-block px-2.5 py-1 rounded-full text-xs font-semibold border ${c.status === 'Running' ? 'bg-green-50 text-green-700 border-green-200' : 'bg-red-50 text-red-600 border-red-200'}`}>{c.status}</span>
                                     </td>
-                                    <td className="py-3 px-2 align-middle text-center">
+                                    <td className="border-r py-3 px-2 align-middle text-center">
                                         {c.status === 'Running'
                                             ? <a
                                                 href={c.address}
@@ -564,6 +588,12 @@ const AdminPage = ({ user, onLogout }) => {
                                         </a>
                                         : <span>-</span>
                                         }
+                                    </td>
+                                    <td className="border-gray-200 py-3 px-2 align-middle text-center">
+                                        <button className="p-1 rounded-lg bg-red-50 hover:bg-red-100 transition-all duration-200 border border-red-200/50 hover:border-red-300 hover:shadow-sm" title="볼륨 삭제"
+                                                onClick={() => handleDeleteContainer(c.name)}>
+                                            <FiTrash2 className='text-red-600'/>
+                                        </button>
                                     </td>
                                 </tr>
                             ))

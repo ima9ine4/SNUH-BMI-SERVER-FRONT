@@ -13,3 +13,16 @@ export const getAllContainersApi = ({userPW, pageNum}) => {
         }
     });
 }
+
+// 컨테이너 삭제
+export const deleteContainerApi = ({userPW, container_name}) => {
+    return axios.delete(`${ADMIN_URL}/Users/container`, {
+        params: {
+            serverName: container_name,
+        },
+        headers: {
+            'accept': 'application/json',
+            'BMI_SWAGGER_KEY': userPW
+        }
+    })
+}
