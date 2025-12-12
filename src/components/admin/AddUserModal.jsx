@@ -6,13 +6,14 @@ const NewVolumeModal = ({ onClose, onSubmit }) => {
     const [userPassword, setUserPassword] = useState('test1234');
     const [userPhone, setUserPhone] = useState('');
     const [userEmail, setUserEmail] = useState('');
-    const [userDepartment, setUserDeparment] = useState('');
+    const [userDepartment, setUserDepartment] = useState('');
+    const [userResearch, setUserResearch] = useState('');
     const [loading, setLoading] = useState('');
     const [error, setError] = useState("");
 
     const handleSubmit = () => {
         if (!userId.trim() || !userName.trim() || !userPassword.trim()) {
-           setError("사용자 ID와 사용자 이름, 비밀번호, 전화번호, 이메일, 소속을 모두 입력해주세요.");
+           setError("사용자 ID와 사용자 이름, 비밀번호, 전화번호, 이메일, 소속, 연구 분야를 모두 입력해주세요.");
             return;
         }
         
@@ -24,6 +25,7 @@ const NewVolumeModal = ({ onClose, onSubmit }) => {
             user_phone: userPhone.trim(),
             user_email: userEmail.trim(),
             user_department: userDepartment.trim(),
+            user_research: userResearch.trim(),
         })
     };
   
@@ -109,9 +111,22 @@ const NewVolumeModal = ({ onClose, onSubmit }) => {
                             <input
                                 type='text'
                                 value={userDepartment}
-                                onChange={(e) => setUserDeparment(e.target.value)}
+                                onChange={(e) => setUserDepartment(e.target.value)}
                                 className='w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:outline-none focus:ring-blue-500 focus:border-transparent'
                                 placeholder='예: 서울대학교병원 융합의학연구실'
+                                disabled={loading}
+                            />
+                        </div>
+                        <div className='space-y-2'>
+                            <label className='block text-sm font-medium text-gray-700'>
+                                사용자 연구 분야 <span className="text-red-500">*</span>
+                            </label>
+                            <input
+                                type='text'
+                                value={userResearch}
+                                onChange={(e) => setUserResearch(e.target.value)}
+                                className='w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:outline-none focus:ring-blue-500 focus:border-transparent'
+                                placeholder='예: AI, CDM, BI'
                                 disabled={loading}
                             />
                         </div>
